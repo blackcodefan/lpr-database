@@ -1,0 +1,89 @@
+9991TUNAPOLIS                               SC
+9989SERRA ALTA                              SC
+9985ITAPOA                                  SC
+9977VITOR MEIRELES                          SC
+9975URUPEMA                                 SC
+9973UNIAO DO OESTE                          SC
+9971TIMBO GRANDE                            SC
+9967SANTA ROSA DO SUL                       SC
+9963MAREMA                                  SC
+9961LINDOIA DO SUL                          SC
+9957JOSE BOITEUX                            SC
+9953IRACEMINHA                              SC
+9951IPORA DO OESTE                          SC
+9945DOUTOR PEDRINHO                         SC
+9943CELSO RAMOS                             SC
+9941APIUNA                                  SC
+9939ABDON BATISTA                           SC
+8397OTACILIO COSTA                          SC
+8395CORREIA PINTO                           SC
+8393TIMBE DO SUL                            SC
+8391MARACAJA                                SC
+8389BOM JARDIM DA SERRA                     SC
+8387XAXIM                                   SC
+8385XAVANTINA                               SC
+8383XANXERE                                 SC
+8381WITMARSUM                               SC
+8379VIDEIRA                                 SC
+8377VIDAL RAMOS                             SC
+8375VARGEAO                                 SC
+8373URUSSANGA                               SC
+8371URUBICI                                 SC
+8369TURVO                                   SC
+8367TUBARAO                                 SC
+8365TROMBUDO CENTRAL                        SC
+8363TREZE TILIAS                            SC
+8361TREZE DE MAIO                           SC
+8359TRES BARRAS                             SC
+8357TIMBO                                   SC
+8355TIJUCAS                                 SC
+8353TANGARA                                 SC
+8351TAIO                                    SC
+8349SOMBRIO                                 SC
+8347SIDEROPOLIS                             SC
+8345SEARA                                   SC
+8343SCHROEDER                               SC
+8341SAUDADES                                SC
+8339SAO MIGUEL DO OESTE                     SC
+8337SAO MARTINHO                            SC
+8335SAO LUDGERO                             SC
+8333SAO LOURENCO DO OESTE                   SC
+8331SAO JOSE DO CERRITO                     SC
+8329SAO JOSE DO CEDRO                       SC
+8327SAO JOSE                                SC
+8325SAO JOAQUIM                             SC
+8323SAO JOAO DO SUL                         SC
+8321SAO JOAO BATISTA                        SC
+8319SAO FRANCISCO DO SUL                    SC
+8317SAO DOMINGOS                            SC
+8315SAO CARLOS                              SC
+8313SAO BONIFACIO                           SC
+8311SAO BENTO DO SUL                        SC
+8309SANTO AMARO DA IMPERATRIZ               SC
+8307SANTA ROSA DE LIMA                      SC
+8305SANTA CECILIA                           SC
+8303SALTO VELOSO                            SC
+8301SALETE                                  SC
+8299ROMELANDIA                              SC
+8297RODEIO                                  SC
+8295RIO NEGRINHO                            SC
+8293RIO FORTUNA                             SC
+8291RIO DO SUL                              SC
+8289RIO DOS CEDROS                          SC
+8287RIO DO OESTE                            SC
+8285RIO DO CAMPO                            SC
+8283RIO DAS ANTAS                           SC
+8281RANCHO QUEIMADO                         SC
+8279QUILOMBO                                SC
+8277PRESIDENTE NEREU                        SC
+8275PRESIDENTE GETULIO                      SC
+8273PRESIDENTE CASTELLO BRANCO              SC
+8271PRAIA GRANDE                            SC
+8269POUSO REDONDO                           SC
+8267PORTO UNIAO                             SC
+8265PORTO BELO                              SC
+8263PONTE SERRADA                           SC
+8261PONTE ALTA                              SC
+8259POMERODE                                SC
+8257PIRATUBA                                SC
+8255PINHEIRO PRETO                          SC

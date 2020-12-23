@@ -1,0 +1,17 @@
+01AMARELA                                 
+02AZUL                                    
+03BEGE                                    
+04BRANCA                                  
+05CINZA                                   
+06DOURADA                                 
+07GRENA                                   
+08LARANJA                                 
+09MARROM                                  
+10PRATA                                   
+11PRETA                                   
+12ROSA                                    
+13ROXA                                    
+14VERDE                                   
+15VERMELHA
+16FANTASIA                                
+99**********                              

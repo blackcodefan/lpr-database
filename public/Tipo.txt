@@ -1,0 +1,28 @@
+01BICICLETA                               
+02CICLOMOTOR                              
+03MOTONETA                                
+04MOTOCICLETA                             
+05TRICICLO                                
+06AUTOMOVEL                               
+07MICROONIBUS                             
+08ONIBUS                                  
+09BONDE                                   
+10REBOQUE                                 
+11SEMI-REBOQUE                            
+12CHARRETE                                
+13CAMIONETA                               
+14CAMINHAO                                
+15CARROCA                                 
+16CARRO DE MAO                            
+17CAMINHAO TRATOR                         
+18TRATOR DE RODAS                         
+19TRATOR ESTEIRAS                         
+20TRATOR MISTO                            
+21QUADRICICLO                             
+22CHASSI/PLATAFORMA                       
+23CAMINHONETE                             
+24SIDE-CAR                                
+25UTILITARIO                              
+26MOTOR-CASA                              
+28MOTONIVELADORA                          
+99EXPERIENCIA                             

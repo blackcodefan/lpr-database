@@ -1,0 +1,33 @@
+{
+  "name": "lpr-database",
+  "version": "1.0.0",
+  "description": "LPR database management server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "keywords": [
+    "lpr",
+    "mongodb",
+    "redisdb",
+    "whatsapp",
+    "email"
+  ],
+  "author": "codefan",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "fs": "0.0.1-security",
+    "mongoose": "^5.11.8",
+    "node-cron": "^2.0.3",
+    "nodemailer": "^6.4.17",
+    "nodemon": "^2.0.6",
+    "path": "^0.12.7",
+    "redis": "^3.0.2",
+    "util": "^0.12.3",
+    "worker-threads": "^1.0.0"
+  }
+}

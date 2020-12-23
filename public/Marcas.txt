@@ -1,0 +1,30 @@
+029269I/H.DAVIDSON 165 ST                     
+029270I/SUZUKI GS 450                         
+029271I/HONDA CB 360                          
+029272I/HONDA V65 SABRE                       
+029273I/HONDA GL 500 SILVERWIN                
+029274I/SUZUKI GS 1100                        
+029275I/SUZUKI TRAILHOPPER T50                
+029276I/BSA MOTOCICLETA                       
+029277I/HONDA GOLDWING GL1200                 
+029278I/DNEPR M-72 SIDECAR                    
+029279I/HONDA XL350                           
+029280I/YAMAHA XT500                          
+029281I/HONDA XL250                           
+029282I/HONDA XL500 R                         
+029283I/HONDA VF 700 SABRE                    
+029284I/SUZUKI GS 1000L                       
+029285I/ARIEL SQUARE FOUR                     
+029286I/HONDA TL250                           
+029287I/YAMAHA XS650                          
+029288I/BMW R80-7                             
+029289I/HARLEY DAVIDSON XL1000                
+029290I/URAL M63                              
+029291I/HARLEY DAVIDSON WLA                   
+029292I/MONARK JAWA 180                       
+029293I/SUZUKI RV125                          
+029294I/HONDA CB 550K                         
+029295I/HONDA CB 125                          
+029296I/HONDA SL 175                          
+029297I/HONDA CB 200                          
+029298I/HONDA GL1000 GOLDWING
