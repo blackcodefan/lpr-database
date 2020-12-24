@@ -25,7 +25,7 @@ app.listen(process.env.PORT || 5000, () =>{
     console.log(`Server is running on http://localhost:${process.env.PORT}`);
 });
 
-cron.schedule('0 9 * * *', () =>{
+cron.schedule('* * * * *', () =>{
      cronJobs.updateBlitz();
     },
     {
