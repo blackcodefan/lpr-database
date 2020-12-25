@@ -7,13 +7,13 @@ const rootPath = path.dirname(require.main.filename || process.mainModule.filena
 
 const readInterface = path =>readline.createInterface({
     input: fs.createReadStream(path),
-    console: false
+    console: true
 });
 
 const biltz = () =>{
     let file = `${rootPath}/public/BLITZ.txt`;
     if(fs.existsSync(file)){
-        const lineStream = readInterface();
+        const lineStream = readInterface(file);
         lineStream.on('line', line =>{
             let trimmed = line.trim().replace(/\s/g,'');
             if(trimmed){
@@ -23,6 +23,7 @@ const biltz = () =>{
             }
         })
             .on('close', () =>{
+                console.log('===========  save ============')
                 client.save();
             });
     }
@@ -31,7 +32,7 @@ const biltz = () =>{
 const color = () =>{
     let file = `${rootPath}/public/Cor.txt`;
     if(fs.existsSync(file)){
-        const lineStream = readInterface();
+        const lineStream = readInterface(file);
         lineStream.on('line', line =>{
             let trimmed = line.trim();
             let colorNumber = trimmed.substring(0, 2);
@@ -47,7 +48,7 @@ const color = () =>{
 const type = () =>{
     let file = `${rootPath}/public/Tipo.txt`;
     if(fs.existsSync(file)){
-        const lineStream = readInterface();
+        const lineStream = readInterface(file);
         lineStream.on('line', line =>{
             let trimmed = line.trim();
             let typeNumber = trimmed.substring(0, 2);
@@ -63,7 +64,7 @@ const type = () =>{
 const brand = () =>{
     let file = `${rootPath}/public/Marcas.txt`;
     if(fs.existsSync(file)){
-        const lineStream = readInterface();
+        const lineStream = readInterface(file);
         lineStream.on('line', line =>{
             let trimmed = line.trim();
             let brandNumber = trimmed.substring(0, 6);
@@ -79,7 +80,7 @@ const brand = () =>{
 const place = () =>{
     let file = `${rootPath}/public/Municipio.txt`;
     if(fs.existsSync(file)){
-        const lineStream = readInterface();
+        const lineStream = readInterface(file);
         lineStream.on('line', line =>{
             let trimmed = line.trim();
             if (trimmed) {
@@ -98,7 +99,7 @@ const place = () =>{
 const renavam = () =>{
     let file = `${rootPath}/public/RenavamSeparador.txt`;
     if(fs.existsSync(file)){
-        const lineStream = readInterface();
+        const lineStream = readInterface(file);
         lineStream.on('line', line =>{
             let trimmed = line.trim().replace(/\s/g,'');
             let subStrings = trimmed.split('#');

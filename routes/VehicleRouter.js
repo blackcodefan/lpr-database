@@ -6,6 +6,9 @@ const hmget = promisify(client.hmget).bind(client);
 const model = require('../model');
 const { Worker } = require('worker_threads');
 
+/**===============================
+ *  Extract info from vehicle name. blueprint of vehicle info
+ */
 class VehicleImageInterpreter {
     constructor(filename){
         this.name = path.parse(filename).name;
@@ -57,7 +60,10 @@ const thread = vehicles =>{
     });
 };
 
-Router.put('/add', async (req, res) =>{
+/**===========================
+ *  Handle new vehicle request from station
+ */
+Router.post('/add', async (req, res) =>{
 
     if (req.headers.authorization !== process.env.SERVER_TOKEN)
         return res.status(401)
@@ -66,7 +72,7 @@ Router.put('/add', async (req, res) =>{
                 error: "Unauthorized"});
 
     let vehicle = new VehicleImageInterpreter(req.body.image);
-    let alerts = await hmget('alert', vehicle.license);
+    let alerts = await hmget('alert', vehicle.license); // get vehicle from redisDB
 
     if(alerts[0]){
         let alertObject = JSON.parse(alerts[0]);

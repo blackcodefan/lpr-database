@@ -1,17 +1,22 @@
 const express = require('express');
 const cron = require('node-cron');
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
 const route = require('./routes');
 const cronJobs = require('./service/cronjob');
 
+/**============
+ *  mongoDB connect
+ */
 mongoose.connect(process.env.ATLAS_URI, {useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true});
 mongoose.connection.once('open', () =>{
     console.log('MongoDB connection established successfully!')
 });
 
 const app = express();
+app.use(cookieParser());
 app.use(cors({origin: true}));
 app.use(express.json());
 
@@ -19,12 +24,23 @@ app.get('/', (req, res) =>{
     return res.status(200).send('server is running');
 });
 
+/** =========================
+ *  Routes
+ */
 app.use('/vehicle', route.VehicleRouter);
+app.use('/city', route.CityRouter);
+app.use('/group', route.GroupRouter);
+app.use('/permission', route.PermissionRouter);
+app.use('/user', route.UserRouter);
+app.use('/station', route.StationRouter);
 
 app.listen(process.env.PORT || 5000, () =>{
     console.log(`Server is running on http://localhost:${process.env.PORT}`);
 });
 
+/** =======================
+ *  cron job at 9:00 am brazil time blitz file update on redisDB
+ */
 cron.schedule('0 9 * * *', () =>{
      cronJobs.updateBlitz();
     },
@@ -33,6 +49,9 @@ cron.schedule('0 9 * * *', () =>{
         timezone: "America/Sao_Paulo"
     });
 
+/**========================
+ *  cron job at 9:00 am on Monday brazil time. update other files on redisDB
+ */
 cron.schedule('0 9 * * 1', () =>{
         cronJobs.updateBrand();
         cronJobs.updateColor();
