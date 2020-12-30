@@ -1,15 +1,14 @@
 const mongoose = require('mongoose');
 
 const StationSchema = mongoose.Schema({
-    deviceId:{
+    id:{
         type: String,
         required: true,
         unique: true
     },
-    model: {
-        type: String,
-        required: true
-    },
+    cameras:[
+        {type: mongoose.Schema.Types.ObjectId, ref: 'Camera'}
+    ],
     city:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'City',

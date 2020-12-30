@@ -33,6 +33,8 @@ app.use('/group', route.GroupRouter);
 app.use('/permission', route.PermissionRouter);
 app.use('/user', route.UserRouter);
 app.use('/station', route.StationRouter);
+app.use('/camera', route.CameraRouter);
+app.use('/alert', route.AlertRouter);
 
 app.listen(process.env.PORT || 5000, () =>{
     console.log(`Server is running on http://localhost:${process.env.PORT}`);

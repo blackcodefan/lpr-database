@@ -4,6 +4,9 @@ const city = require('./City');
 const group = require('./Group');
 const permission = require('./Permission');
 const station = require('./Station');
+const camera = require('./Camera');
+const alertModel = require('./Alert');
+const log = require('./Log');
 
 module.exports = {
     User: user,
@@ -11,5 +14,9 @@ module.exports = {
     Group: group,
     Permission: permission,
     Vehicle: vehicle,
-    Station: station
+    Station: station,
+    Camera: camera,
+    AlertType: alertModel.type,
+    Alert: alertModel.alert,
+    Log: log
 };

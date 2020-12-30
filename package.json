@@ -12,10 +12,18 @@
     "mongodb",
     "redisdb",
     "whatsapp",
-    "email"
+    "email",
+    "mongooe",
+    "react",
+    "express",
+    "MERN"
   ],
-  "author": "codefan",
+  "author": "blackcodefan",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/blackcodefan/LPR-database/issues"
+  },
+  "homepage": "https://github.com/blackcodefan/LPR-database#readme",
   "dependencies": {
     "bcrypt": "^5.0.0",
     "cookie-parser": "^1.4.5",
@@ -23,10 +31,14 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "fs": "0.0.1-security",
+    "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.11.8",
     "node-cron": "^2.0.3",
     "nodemailer": "^6.4.17",
     "nodemon": "^2.0.6",
+    "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
     "path": "^0.12.7",
     "redis": "^3.0.2",
     "util": "^0.12.3",

@@ -24,7 +24,6 @@ const UserSchema = new mongoose.Schema({
     group:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Group',
-        required: true
     },
     permissions: [{type: mongoose.Schema.Types.ObjectId, ref: 'Permission'}],
     email:{
@@ -35,12 +34,10 @@ const UserSchema = new mongoose.Schema({
     whatsApp:{
         type: String,
         required: true,
-        unique: true
     },
     mobile: {
         type: String,
         required: true,
-        unique: true
     },
     role:{
         type: String,

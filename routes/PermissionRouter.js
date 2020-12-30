@@ -1,7 +1,7 @@
 const Router = require('express').Router();
 const model = require('../model');
 
-Router.post('/add', (req, res) =>{
+Router.post('/create', (req, res) =>{
     let permission = new model.Permission(req.body);
     permission.save((error, document) =>{
         if(error)
@@ -14,6 +14,18 @@ Router.post('/add', (req, res) =>{
             success: true,
             record: document
         })
+    });
+});
+
+Router.get('/read', (req, res) =>{
+    model.Permission.find({}, function(err, permissions) {
+        let permissionMaps = {};
+
+        permissions.forEach(function(permission) {
+            permissionMaps[permission._id] = permission;
+        });
+
+        return res.status(200).send(permissionMaps);
     });
 });
 

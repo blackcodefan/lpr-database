@@ -4,6 +4,8 @@ const group = require('./GroupRouter');
 const permission = require('./PermissionRouter');
 const user = require('./UserRouter');
 const station = require('./StationRouter');
+const camera = require('./CameraRouter');
+const alert = require('./AlertRouter');
 
 module.exports = {
     VehicleRouter: vehicle,
@@ -11,5 +13,7 @@ module.exports = {
     GroupRouter: group,
     PermissionRouter: permission,
     UserRouter: user,
-    StationRouter: station
+    StationRouter: station,
+    CameraRouter: camera,
+    AlertRouter: alert
 };

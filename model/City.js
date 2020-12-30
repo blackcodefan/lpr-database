@@ -1,13 +1,19 @@
 const mongoose = require('mongoose');
 
 const CitySchema = mongoose.Schema({
+    id:{
+        type: String,
+        //required: true,
+        //unique: true
+    },
     city:{
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     state:{
         type: String,
-        required: true
+        default: "SC"
     }
     },
     {

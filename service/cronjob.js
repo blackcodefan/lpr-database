@@ -23,7 +23,6 @@ const biltz = () =>{
             }
         })
             .on('close', () =>{
-                console.log('===========  save ============')
                 client.save();
             });
     }
