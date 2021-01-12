@@ -7,9 +7,9 @@ Router.post('/create', passport.authenticate('jwt', {session: false}), (req, res
     let city = new model.City(req.body);
     city.save((error, document) =>{
         if(error)
-            return res.status(400).send({
+            return res.status(500).send({
                 true:false,
-                error: error.message
+                errorMsg: "Something went wrong"
             });
 
         return res.status(201).send({
@@ -21,7 +21,7 @@ Router.post('/create', passport.authenticate('jwt', {session: false}), (req, res
 
 Router.put('/update', passport.authenticate('jwt', {session: false}), (req, res) =>{
     if(req.user.role !== 'admin'){
-        return res.status(401).send({success: false, error: "Permission denied"});
+        return res.status(401).send({success: false, errorMsg: "Permission denied"});
     }
 
     model.City.findById({_id: req.body._id})
@@ -30,27 +30,27 @@ Router.put('/update', passport.authenticate('jwt', {session: false}), (req, res)
             document.state = req.body.state || document.state;
             document.save((error, document) =>{
                 if(error)
-                    return res.status(500).send({success: false, error: error});
+                    return res.status(500).send({success: false, errorMsg: "Something went wrong"});
                 else
                     return res.status(202).send({success: true, city: document});
             });
         }).catch(error=>{
-            return res.status(500).send({success:false, error: error});
+            return res.status(500).send({success:false, errorMsg: "Something went wrong"});
     });
 });
 
 Router.delete('/delete', passport.authenticate('jwt', {session: false}),  (req, res) =>{
     if(req.user.role !== 'admin'){
-        return res.status(401).send({success: false, error: "Permission denied"});
+        return res.status(401).send({success: false, errorMsg: "Permission denied"});
     }
-    model.City.deleteMany({_id: {$in: req.body.id}})
+    model.City.deleteMany({_id: {$in: req.body.cities}})
         .then(response =>{
-            res.status(202).send({success: true});
+            res.status(202).send({success: true, count: response.deletedCount});
         });
 });
 
 Router.get('/fetchAll', passport.authenticate('jwt', {session: false}), (req, res) =>{
-    model.City.find({}, function(err, cities) {
+    model.City.find({}, null, {sort: {city: 'asc'}},function(err, cities) {
         return res.status(200).send({success: true, cities:cities});
     });
 });

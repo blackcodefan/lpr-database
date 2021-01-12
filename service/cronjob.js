@@ -19,7 +19,7 @@ const biltz = () =>{
             if(trimmed){
                 let license = trimmed.slice(0, -1);
                 let alertType = trimmed.slice(-1);
-                client.hmset('alert', license, JSON.stringify({alertType:alertType}));
+                client.hmset('alert', license, alertType);
             }
         })
             .on('close', () =>{

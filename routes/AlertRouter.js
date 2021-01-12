@@ -1,36 +1,86 @@
 const Router = require('express').Router();
+const passport = require('passport');
+const passportConfig = require('../passport');
 const model = require('../model');
+const client = require('../service/redisDB');
 
-Router.post('/add', (req, res) =>{
-    let alert = new model.Alert(req.body);
-    alert.save((error, document) =>{
-        if(error)
-            return res.status(401).send({
-                true:false,
-                error: error.message
-            });
-
-        return res.status(201).send({
-            success: true,
-            record: document
-        })
+Router.post('/create', passport.authenticate('jwt', {session: false}), (req, res) =>{
+    /// Redis DB should be added
+    let alert = {...req.body};
+    alert.createdBy = req.user._id;
+    model.Alert.create(alert, (error, document) =>{
+        if(error){
+            if(error.code === 11000){
+                res.status(401).send({success: false, errorMsg: "Licença duplicada"})
+            }else{
+                res.status(500).send({success: false, errorMsg: "Algo deu errado"})
+            }
+        }else{
+            client.hmset('alert', alert.plate, alert.type);
+            res.status(201).send({success: true, doc: document})
+        }
     });
 });
 
-Router.post('/addType', (req, res) =>{
-    let alert = new model.AlertType(req.body);
-    alert.save((error, document) =>{
-        if(error)
-            return res.status(401).send({
-                true:false,
-                error: error.message
-            });
+Router.post('/fetchAll', passport.authenticate('jwt', {session: false}), async (req, res) =>{
+    let count = await model.Alert.countDocuments(req.body.filterObj);
 
-        return res.status(201).send({
-            success: true,
-            record: document
+    model.Alert.find(req.body.filterObj)
+        .sort(req.body.sort)
+        .skip((req.body.page -1) * req.body.sizePerPage)
+        .limit(req.body.sizePerPage)
+        .populate({path: 'createdBy', select: ['name']})
+        .exec((error, documents) =>{
+            if(error){
+                return res.status(500).send({
+                    success: false,
+                    errorMsg: "Algo deu errado"
+                });
+            }
+
+            return res.status(200).send({success: true, alerts: documents, total: count});
         })
+});
+
+Router.put('/update', passport.authenticate('jwt', {session: false}), (req, res) =>{
+    if(req.user.role !== 'admin'){
+        return res.status(401).send({success: false, errorMsg: "Permissão negada"});
+    }
+
+    model.Alert.findByIdAndUpdate(req.body.id, req.body.query,  {useFindAndModify: false},(err, docs) => {
+        if (err){
+            res.status(500).send({success:false, errorMsg: "Algo deu errado"});
+        }
+        else{
+            if(req.body.query.type)
+                client.hmset('alert', docs.plate, req.body.query.type);
+            res.status(202).send({success:true, doc: docs});
+        }
     });
+});
+
+Router.delete('/delete', passport.authenticate('jwt', {session: false}),  (req, res) =>{
+    if(req.user.role !== 'admin'){
+        return res.status(401).send({success: false, errorMsg: "Permissão negada"});
+    }
+    model.Alert.find({_id: {$in: req.body.alerts}})
+        .exec((error, documents) =>{
+            if(error){
+                return res.status(500).send({
+                    success: false,
+                    errorMsg: "Algo deu errado"
+                });
+            }
+
+            for (let document of documents){
+                client.del('alert', document.plate);
+            }
+
+            model.Alert.deleteMany({_id: {$in: req.body.alerts}})
+                .then(response =>{
+                    res.status(202).send({success: true, count: response.deletedCount});
+                });
+        });
 });
 
 module.exports = Router;

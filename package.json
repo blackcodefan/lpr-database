@@ -41,6 +41,7 @@
     "passport-local": "^1.0.0",
     "path": "^0.12.7",
     "redis": "^3.0.2",
+    "twilio": "^3.54.2",
     "util": "^0.12.3",
     "worker-threads": "^1.0.0"
   }

@@ -47,8 +47,23 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    sms:{
+        type: Boolean,
+        required: true,
+    },
+    whatsAppMessage: {
+        type: Boolean,
+        required: true
+    },
+    mail: {
+        type: Boolean,
+        required: true
     }
-});
+},
+    {
+        timestamps: true
+    });
 
 UserSchema.pre('save', function(next) {
     if (!this.isModified('password'))

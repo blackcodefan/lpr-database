@@ -2,13 +2,9 @@ const Router = require('express').Router();
 const model = require('../model');
 
 Router.post('/create', (req, res) =>{
-    let permission = new model.Permission(req.body);
-    permission.save((error, document) =>{
+    model.Permission.create(req.body, (error, document)=>{
         if(error)
-            return res.status(400).send({
-                true:false,
-                error: error.message
-            });
+            res.status(500).send({success: false, errorMsg: "Algo deu errado"})
 
         return res.status(201).send({
             success: true,
@@ -17,15 +13,14 @@ Router.post('/create', (req, res) =>{
     });
 });
 
-Router.get('/read', (req, res) =>{
-    model.Permission.find({}, function(err, permissions) {
-        let permissionMaps = {};
-
-        permissions.forEach(function(permission) {
-            permissionMaps[permission._id] = permission;
-        });
-
-        return res.status(200).send(permissionMaps);
+Router.get('/fetchAll', (req, res) =>{
+    model.Permission.find({}, null, {sort: {city: 'asc'}},function(err, permissions) {
+        if (err)
+            return res.status(500).send({
+                success: false,
+                errorMsg: "Algo deu errado"
+            });
+        return res.status(200).send({success: true, permissions:permissions});
     });
 });
 

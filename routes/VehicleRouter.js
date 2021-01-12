@@ -3,6 +3,8 @@ const path = require('path');
 const {promisify} = require('util');
 const client = require('../service/redisDB');
 const hmget = promisify(client.hmget).bind(client);
+const passport = require('passport');
+const passportConfig = require('../passport');
 const model = require('../model');
 const { Worker } = require('worker_threads');
 
@@ -20,9 +22,9 @@ class VehicleImageInterpreter {
         this.date = namePiece[3];
         this.time = namePiece[4];
         this.color = namePiece[5];
-        this.alert = "0";
-        this.email = '';
-        this.mobile = '';
+        this.alert = 0;
+        this.street = '';
+        this.city = '';
     }
 
     vehicleName(){
@@ -44,17 +46,34 @@ class VehicleImageInterpreter {
             vehicleImg: this.vehicleName(),
             plateImg: this.plateImgName(),
             alert: this.alert,
-            email: this.email,
-            mobile: this.mobile
+            alertType: alertTypes[this.alert],
+            city: this.city,
+            street: this.street
         }
     }
 }
 
+const groupsForAlert = [
+    '5ff8c5a94ec2f1483053684d',
+    '5ff8c5f24ec2f14830536851',
+    '5ff8c6034ec2f14830536852',
+    '5ff8c6114ec2f14830536853',
+    '5ff8c61a4ec2f14830536854'
+];
+
+const alertTypes = [
+    'Roubo',
+    'Licenciamento',
+    'Renajud',
+    'Envolvido na ocorrência',
+    'Investigado'
+];
+
 const rootPath = path.dirname(require.main.filename || process.mainModule.filename);
 
-const thread = vehicles =>{
+const thread = data =>{
     return new Promise((resolve, reject) =>{
-        const worker = new Worker(`${rootPath}/service/worker.js`, {workerData:vehicles});
+        const worker = new Worker(`${rootPath}/service/worker.js`, {workerData:data});
         worker.on('message', resolve);
         worker.on('error', reject);
     });
@@ -69,32 +88,83 @@ Router.post('/add', async (req, res) =>{
         return res.status(401)
             .send({
                 success: false,
-                error: "Unauthorized"});
+                errorMsg: "Unauthorized"});
 
     let vehicle = new VehicleImageInterpreter(req.body.image);
-    let alerts = await hmget('alert', vehicle.license); // get vehicle from redisDB
+    let alerts = await hmget('alert', vehicle.license);
 
     if(alerts[0]){
-        let alertObject = JSON.parse(alerts[0]);
-        vehicle.alert = alertObject.alertType;
-        if(alertObject.email) vehicle.email = alertObject.email;
-        if(alertObject.mobile) vehicle.mobile = alertObject.mobile;
+        vehicle.alert = parseInt(alerts[0]);
+
+        let station = await model.Station.findOne({id: vehicle.station});
+        let camera = await model.Camera.findOne({cameraId: vehicle.camera, station: station._id});
+        let city = await model.City.findById(camera.city);
+        vehicle.street = camera.street;
+        vehicle.city = `${city.city}-${city.state}`;
+        let users = [];
+        if(vehicle.alert === 1 || vehicle.alert === 4){
+            users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {_id: 0, role: 0, password: 0, createdAt: 0, updatedAt: 0});
+            thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
+        }else if(vehicle.alert === 5){
+            let alert = await model.Alert.findOne({plate: vehicle.license, type: 1});
+            if(alert){
+                users = await model.User.find({_id: alert.createdBy}, {_id: 0, role: 0, password: 0, createdAt: 0, updatedAt: 0});
+                thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
+            }
+        }
     }
 
-    const vehicleModel = new model.Vehicle(vehicle.toJson());
+    /// missing system notification
 
-    vehicleModel.save((error, document) =>{
+    model.Vehicle.create(vehicle.toJson(), (error, document) =>{
         if(error)
-            return res.status(403).send({
+            return res.status(500).send({
                 true:false,
-                error: error.message
+                errorMsg: "Algo deu errado"
             });
 
-        return res.status(201).send({
+        else return res.status(201).send({
             success: true,
             record: document
         })
     });
+});
+
+Router.post('/fetchAll', passport.authenticate('jwt', {session: false}), async (req, res) =>{
+
+    let count = await model.Vehicle.countDocuments(req.body.filterObj);
+
+    model.Vehicle.find(req.body.filterObj)
+        .sort(req.body.sort)
+        .skip((req.body.page -1) * req.body.sizePerPage)
+        .limit(req.body.sizePerPage)
+        .exec((error, documents) =>{
+            if(error){
+                return res.status(500).send({
+                    success: false,
+                    errorMsg: "Algo deu errado"
+                });
+            }
+
+            return res.status(200).send({success: true, vehicles: documents, total: count});
+        })
+});
+
+Router.get('/fetch/:id', passport.authenticate('jwt', {session: false}), async (req, res) =>{
+    let vehicle = await model.Vehicle.findById({_id: req.params.id}, {_id: 0});
+    if(vehicle){
+        let station = await model.Station.findOne({id: vehicle.station});
+        let camera = await model.Camera.findOne({station: station._id, cameraId: vehicle.camera})
+            .populate({path: 'city'});
+        return res.status(200).send({
+            success: true,
+            vehicle: vehicle,
+            station: station,
+            camera: camera
+        })
+    }else {
+        return res.status(400).send({success: false, errorMsg: 'Relatório não existe'});
+    }
 });
 
 module.exports = Router;

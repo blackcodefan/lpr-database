@@ -38,6 +38,14 @@ const CameraSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    neighborhood:{
+        type: String,
+        required: true
+    },
+    serialNumber:{
+        type: String,
+        required: true
+    },
     note:{
         type: String,
     }

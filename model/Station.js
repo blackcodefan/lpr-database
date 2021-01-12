@@ -6,9 +6,6 @@ const StationSchema = mongoose.Schema({
         required: true,
         unique: true
     },
-    cameras:[
-        {type: mongoose.Schema.Types.ObjectId, ref: 'Camera'}
-    ],
     city:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'City',

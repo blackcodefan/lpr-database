@@ -34,14 +34,8 @@ const VehicleSchema = new mongoose.Schema({
         required: true
     },
     alert:{
-        type: String,
-        default: "0"
-    },
-    email:{
-        type: String
-    },
-    mobile:{
-        type: String
+        type: Number,
+        default: 0
     }
     },
     {

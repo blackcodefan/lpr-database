@@ -1,15 +1,18 @@
 const mongoose = require('mongoose');
 
 const GroupSchema = mongoose.Schema({
+    id:{
+        type: Number,
+        required: true,
+        unique: true
+    },
     name:{
         type: String,
         required: true,
         unique: true
     },
-    city:{
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        ref: 'City'
+    description:{
+        type: String,
     }
     },
     {

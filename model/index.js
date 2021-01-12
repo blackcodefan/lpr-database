@@ -5,7 +5,7 @@ const group = require('./Group');
 const permission = require('./Permission');
 const station = require('./Station');
 const camera = require('./Camera');
-const alertModel = require('./Alert');
+const alert = require('./Alert');
 const log = require('./Log');
 
 module.exports = {
@@ -16,7 +16,6 @@ module.exports = {
     Vehicle: vehicle,
     Station: station,
     Camera: camera,
-    AlertType: alertModel.type,
-    Alert: alertModel.alert,
+    Alert: alert,
     Log: log
 };

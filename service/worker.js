@@ -1,14 +1,10 @@
 const { workerData } = require('worker_threads');
-const mailer = require('./mailer');
+const sendMail = require('./mailer');
+const sendWhatsapp = require('./whatsapp');
+const sendSMS = require('./sms');
 
-const mailData = {
-    from: process.env.GMAIL_USER_NAME,
-    to: 'myongilk@outlook.com',
-    subject: 'Sending Email using Node.js',
-    html: '<b>Hey there! </b><br> This is our first message sent with Nodemailer<br/>',
-};
+let users = JSON.parse(workerData.users);
 
-mailer.sendMail(mailData, (error, info) =>{
-    if(error) console.log(error);
-    else{console.log(info.response)}
-});
+sendMail(users, workerData.vehicle);
+sendWhatsapp(users, workerData.vehicle).then(res => console.log(res));
+// sendSMS(users, workerData.vehicle).then(res => console.log(res));

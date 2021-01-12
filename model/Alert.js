@@ -1,58 +1,27 @@
 const mongoose = require('mongoose');
 
-const AlertTypeSchema = mongoose.Schema({
-    type:{
-        type: Number,
-        required: true
-    },
-    name: {
-        type: String,
-        required: true
-    },
-},
-    {
-        timestamps: true
-    });
-
 const AlertSchema = mongoose.Schema({
     plate:{
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     type: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Number,
         required: true,
-        ref: 'AlertType'
+        enum:[1, 2, 3, 4, 5]
     },
     note:{
         type: String,
     },
-    approved:{
-        type: Boolean,
-        default: false
-    },
-    receiverType:{
-        type: String,
-        enum:['Individual', 'Group', 'City']
-    },
-    receiverIndividual:{
+    createdBy: {
         type: mongoose.Schema.Types.ObjectId,
+        required: true,
         ref: 'User'
-    },
-    receiverGroup:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Group'
-    },
-    receiverCity:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'City'
     }
 },
     {
         timestamps: true
     });
 
-module.exports = {
-    type: mongoose.model('AlertType', AlertTypeSchema),
-    alert: mongoose.model('Alert', AlertSchema)
-};
+module.exports = mongoose.model('Alert', AlertSchema);
