@@ -62,6 +62,7 @@ const groupsForAlert = [
 ];
 
 const alertTypes = [
+    'Nenhum',
     'Roubo',
     'Licenciamento',
     'Renajud',
@@ -106,7 +107,7 @@ Router.post('/add', async (req, res) =>{
             users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {_id: 0, role: 0, password: 0, createdAt: 0, updatedAt: 0});
             thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
         }else if(vehicle.alert === 5){
-            let alert = await model.Alert.findOne({plate: vehicle.license, type: 1});
+            let alert = await model.Alert.findOne({plate: vehicle.license, type: vehicle.alert});
             if(alert){
                 users = await model.User.find({_id: alert.createdBy}, {_id: 0, role: 0, password: 0, createdAt: 0, updatedAt: 0});
                 thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
