@@ -54,7 +54,7 @@ io.on("connection", socket =>{
 /** =======================
  *  cron job at 9:00 am brazil time blitz file update on redisDB
  */
-cron.schedule('0 9 * * *', () =>{
+cron.schedule('10 9 * * *', () =>{
      cronJobs.updateBlitz();
     },
     {
