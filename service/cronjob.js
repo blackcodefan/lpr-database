@@ -23,7 +23,11 @@ const biltz = () =>{
             }
         })
             .on('close', () =>{
-                client.save();
+                try{
+                    client.save();
+                }catch (e) {
+                    console.log('already saving is in progress');
+                }
             });
     }
 };
@@ -34,12 +38,18 @@ const color = () =>{
         const lineStream = readInterface(file);
         lineStream.on('line', line =>{
             let trimmed = line.trim();
-            let colorNumber = trimmed.substring(0, 2);
-            let colorName = trimmed.substring(2);
-            client.hmset('color', colorNumber, colorName);
+            if(trimmed){
+                let colorNumber = trimmed.substring(0, 2);
+                let colorName = trimmed.substring(2);
+                client.hmset('color', colorNumber, colorName);
+            }
         })
             .on('close', () =>{
-                client.save();
+                try{
+                    client.save();
+                }catch (e) {
+                    console.log('already saving is in progress');
+                }
             });
     }
 };
@@ -50,12 +60,18 @@ const type = () =>{
         const lineStream = readInterface(file);
         lineStream.on('line', line =>{
             let trimmed = line.trim();
-            let typeNumber = trimmed.substring(0, 2);
-            let typeName = trimmed.substring(2);
-            client.hmset('type', typeNumber, typeName);
+            if(trimmed){
+                let typeNumber = trimmed.substring(0, 2);
+                let typeName = trimmed.substring(2);
+                client.hmset('type', typeNumber, typeName);
+            }
         })
             .on('close', () =>{
-                client.save();
+                try{
+                    client.save();
+                }catch (e) {
+                    console.log('already saving is in progress');
+                }
             });
     }
 };
@@ -66,12 +82,18 @@ const brand = () =>{
         const lineStream = readInterface(file);
         lineStream.on('line', line =>{
             let trimmed = line.trim();
-            let brandNumber = trimmed.substring(0, 6);
-            let brandName = trimmed.substring(6);
-            client.hmset('brand', brandNumber, brandName);
+            if(trimmed){
+                let brandNumber = trimmed.substring(0, 6);
+                let brandName = trimmed.substring(6);
+                client.hmset('brand', brandNumber, brandName);
+            }
         })
             .on('close', () =>{
-                client.save();
+                try{
+                    client.save();
+                }catch (e) {
+                    console.log('already saving is in progress');
+                }
             });
     }
 };
@@ -90,7 +112,11 @@ const place = () =>{
             }
         })
             .on('close', () =>{
-                client.save();
+                try{
+                    client.save();
+                }catch (e) {
+                    console.log('already saving is in progress');
+                }
             });
     }
 };
@@ -101,29 +127,36 @@ const renavam = () =>{
         const lineStream = readInterface(file);
         lineStream.on('line', line =>{
             let trimmed = line.trim().replace(/\s/g,'');
-            let subStrings = trimmed.split('#');
-            let license = subStrings[0];
-            let state = subStrings[6].slice(1);
-            let renavamId = subStrings[7];
-            let cpf = subStrings[10].slice(3);
-            let makeYear = subStrings[8];
-            let modelYear = subStrings[9];
-            let color = subStrings[2];
-            let makeAndModel = subStrings[1];
-            let owner = subStrings[11];
-            client.hmset('renavam', license, JSON.stringify({
-                state: state,
-                renavamId: renavamId,
-                cdf:cpf,
-                makeYear: makeYear,
-                modelYear: modelYear,
-                color: color,
-                makeAndModel: makeAndModel,
-                owner: owner
-            }))
+            if (trimmed) {
+                console.log(trimmed);
+                let subStrings = trimmed.split('#');
+                let license = subStrings[0];
+                let state = subStrings[6].slice(1);
+                let renavamId = subStrings[7];
+                let cpf = subStrings[10].slice(3);
+                let makeYear = subStrings[8];
+                let modelYear = subStrings[9];
+                let color = subStrings[2];
+                let makeAndModel = subStrings[1];
+                let owner = subStrings[11];
+                client.hmset('renavam', license, JSON.stringify({
+                    state: state,
+                    renavamId: renavamId,
+                    cdf:cpf,
+                    makeYear: makeYear,
+                    modelYear: modelYear,
+                    color: color,
+                    makeAndModel: makeAndModel,
+                    owner: owner
+                }))
+            }
         })
             .on('close', () =>{
-                client.save();
+                try{
+                    client.save();
+                }catch (e) {
+                    console.log('already saving is in progress');
+                }
             });
     }
 };
