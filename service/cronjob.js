@@ -93,7 +93,6 @@ const renavam = () =>{
         lineStream.on('line', line =>{
             let trimmed = line.trim().replace(/\s/g,'');
             if (trimmed) {
-                console.log(trimmed);
                 let subStrings = trimmed.split('#');
                 let license = subStrings[0];
                 let state = subStrings[6].slice(1);
