@@ -9,7 +9,7 @@ Router.post('/create', passport.authenticate('jwt', {session: false}), (req, res
         if(error)
             return res.status(500).send({
                 true:false,
-                errorMsg: "Something went wrong"
+                errorMsg: "Algo deu errado"
             });
 
         return res.status(201).send({
@@ -21,7 +21,7 @@ Router.post('/create', passport.authenticate('jwt', {session: false}), (req, res
 
 Router.put('/update', passport.authenticate('jwt', {session: false}), (req, res) =>{
     if(req.user.role !== 'admin'){
-        return res.status(401).send({success: false, errorMsg: "Permission denied"});
+        return res.status(401).send({success: false, errorMsg: "Permissão negada"});
     }
 
     model.City.findById({_id: req.body._id})
@@ -30,18 +30,18 @@ Router.put('/update', passport.authenticate('jwt', {session: false}), (req, res)
             document.state = req.body.state || document.state;
             document.save((error, document) =>{
                 if(error)
-                    return res.status(500).send({success: false, errorMsg: "Something went wrong"});
+                    return res.status(500).send({success: false, errorMsg: "Algo deu errado"});
                 else
                     return res.status(202).send({success: true, city: document});
             });
         }).catch(error=>{
-            return res.status(500).send({success:false, errorMsg: "Something went wrong"});
+            return res.status(500).send({success:false, errorMsg: "Algo deu errado"});
     });
 });
 
 Router.delete('/delete', passport.authenticate('jwt', {session: false}),  (req, res) =>{
     if(req.user.role !== 'admin'){
-        return res.status(401).send({success: false, errorMsg: "Permission denied"});
+        return res.status(401).send({success: false, errorMsg: "Permissão negada"});
     }
     model.City.deleteMany({_id: {$in: req.body.cities}})
         .then(response =>{

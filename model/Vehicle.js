@@ -36,6 +36,15 @@ const VehicleSchema = new mongoose.Schema({
     alert:{
         type: Number,
         default: 0
+    },
+    model:{
+        type: String
+    },
+    renavam:{
+        type: String
+    },
+    owner: {
+        type: String
     }
     },
     {

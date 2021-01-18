@@ -11,7 +11,7 @@ Router.get('/fetchAll', passport.authenticate('jwt', {session: false}), (req, re
             if(error)
                 return res.status(500).send({
                     success: false,
-                    errorMsg: "Something went wrong"
+                    errorMsg: "Algo deu errado"
                 });
             return res.status(200).send({success: true, stations: documents});
         })
@@ -25,11 +25,11 @@ Router.post('/create', passport.authenticate('jwt', {session: false}), (req, res
             return res.status(400).send({
                 success:false,
                 errorCode: 11000,
-                errorMsg: "Station Id is duplicated!"
+                errorMsg: "Id da estação duplicada"
             });
             else return res.status(500).send({
                 success:false,
-                errorMsg: "Something went wrong!"
+                errorMsg: "Algo deu errado"
             })
         }
 
@@ -43,15 +43,15 @@ Router.post('/create', passport.authenticate('jwt', {session: false}), (req, res
 
 Router.put('/update', passport.authenticate('jwt', {session: false}), (req, res) =>{
     if(req.user.role !== 'admin'){
-        return res.status(401).send({success: false, errorMsg: "Permission denied"});
+        return res.status(401).send({success: false, errorMsg: "Permissão negada"});
     }
 
     model.Station.findByIdAndUpdate(req.body.id, req.body.query,  {useFindAndModify: false},(err, docs) => {
         if (err){
             if(err.code === 11000){
-                res.status(400).send({success:false, errorMsg: "Station Id duplicated"});
+                res.status(400).send({success:false, errorMsg: "Id da estação duplicada"});
             }else{
-                res.status(500).send({success:false, errorMsg: "Something went wrong"});
+                res.status(500).send({success:false, errorMsg: "Algo deu errado"});
             }
         }
         else{
@@ -62,7 +62,7 @@ Router.put('/update', passport.authenticate('jwt', {session: false}), (req, res)
 
 Router.delete('/delete', passport.authenticate('jwt', {session: false}),  (req, res) =>{
     if(req.user.role !== 'admin'){
-        return res.status(401).send({success: false, errorMsg: "Permission denied"});
+        return res.status(401).send({success: false, errorMsg: "Permissão negada"});
     }
     model.Station.deleteMany({_id: {$in: req.body.stations}})
         .then(response =>{

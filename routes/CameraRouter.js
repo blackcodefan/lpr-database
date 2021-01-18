@@ -25,6 +25,23 @@ Router.post('/fetchAll', passport.authenticate('jwt', {session: false}), async (
         })
 });
 
+Router.get('/fetch', passport.authenticate('jwt', {session: false}), async (req, res) =>{
+    model.Camera.find()
+        .populate({path: 'city', select: ['city', 'state']})
+        .populate({path: 'station', select: ['id']})
+        .exec((error, documents) =>{
+            if(error){
+                return res.status(500).send({
+                    success: false,
+                    errorMsg: "Algo deu errado"
+                });
+            }
+
+            return res.status(200).send({success: true, cameras: documents});
+        })
+
+});
+
 Router.post('/create', passport.authenticate('jwt', {session: false}), (req, res) =>{
     let camera = new model.Camera(req.body);
     model.Camera.findOne({station: req.body.station, cameraId: req.body.cameraId})
@@ -32,7 +49,7 @@ Router.post('/create', passport.authenticate('jwt', {session: false}), (req, res
             if(document)
                 return res.status(400).send({
                     true:false,
-                    errorMsg: "Camera Id duplicated"
+                    errorMsg: "Id da câmera duplicada"
                 });
             else
                 camera.save((error, document) =>{
@@ -52,13 +69,13 @@ Router.post('/create', passport.authenticate('jwt', {session: false}), (req, res
 
 Router.put('/update', passport.authenticate('jwt', {session: false}), (req, res) =>{
     if(req.user.role !== 'admin'){
-        return res.status(401).send({success: false, errorMsg: "Permission denied"});
+        return res.status(401).send({success: false, errorMsg: "Permissão negada"});
     }
 
 
     model.Camera.findByIdAndUpdate(req.body.id, req.body.query,  {useFindAndModify: false},(err, docs) => {
         if (err){
-            res.status(500).send({success:false, errorMsg: "Something went wrong"})
+            res.status(500).send({success:false, errorMsg: "Algo deu errado"})
         }
         else{
             res.status(202).send({success:true, docs: docs});
@@ -68,7 +85,7 @@ Router.put('/update', passport.authenticate('jwt', {session: false}), (req, res)
 
 Router.delete('/delete', passport.authenticate('jwt', {session: false}),  (req, res) =>{
     if(req.user.role !== 'admin'){
-        return res.status(401).send({success: false, errorMsg: "Permission denied"});
+        return res.status(401).send({success: false, errorMsg: "Permissão negada"});
     }
     model.Camera.deleteMany({_id: {$in: req.body.cameras}})
         .then(response =>{

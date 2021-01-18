@@ -25,6 +25,9 @@ class VehicleImageInterpreter {
         this.alert = 0;
         this.street = '';
         this.city = '';
+        this.model = '';
+        this.renavamId = '';
+        this.owner = '';
     }
 
     vehicleName(){
@@ -48,7 +51,10 @@ class VehicleImageInterpreter {
             alert: this.alert,
             alertType: alertTypes[this.alert],
             city: this.city,
-            street: this.street
+            street: this.street,
+            model: this.model,
+            renavam: this.renavamId,
+            owner: this.owner
         }
     }
 }
@@ -89,9 +95,22 @@ Router.post('/add', async (req, res) =>{
         return res.status(401)
             .send({
                 success: false,
-                errorMsg: "Unauthorized"});
+                errorMsg: "Não autorizado"});
 
     let vehicle = new VehicleImageInterpreter(req.body.image);
+    let renavamData = await hmget('renavam', vehicle.license);
+
+    if(renavamData[0]){
+        let renavamObj = JSON.parse(renavamData[0]);
+        let modelId = renavamObj.makeAndModel;
+        let modelData = await hmget('brand', modelId);
+        if(modelData[0]){
+            vehicle.model = modelData[0];
+        }
+        vehicle.renavamId = renavamObj.renavamId;
+        vehicle.owner = renavamObj.owner;
+    }
+
     let alerts = await hmget('alert', vehicle.license);
 
     if(alerts[0]){
@@ -124,10 +143,13 @@ Router.post('/add', async (req, res) =>{
                 errorMsg: "Algo deu errado"
             });
 
-        else return res.status(201).send({
+        else {
+            io.emit('vehicle', document);
+            return res.status(201).send({
             success: true,
             record: document
-        })
+        });
+        }
     });
 });
 
@@ -136,6 +158,36 @@ Router.post('/fetchAll', passport.authenticate('jwt', {session: false}), async (
     let count = await model.Vehicle.countDocuments(req.body.filterObj);
 
     model.Vehicle.find(req.body.filterObj)
+        .sort(req.body.sort)
+        .skip((req.body.page -1) * req.body.sizePerPage)
+        .limit(req.body.sizePerPage)
+        .exec((error, documents) =>{
+            if(error){
+                return res.status(500).send({
+                    success: false,
+                    errorMsg: "Algo deu errado"
+                });
+            }
+
+            return res.status(200).send({success: true, vehicles: documents, total: count});
+        })
+});
+
+Router.post('/alert', passport.authenticate('jwt', {session: false}), async (req, res) =>{
+
+    // console.log(count);
+    let filter = {};
+    req.body.filterObj.alert.length < 1
+        ?filter.alert = {$ne: 0}
+        :filter.alert = {$in: req.body.filterObj.alert};
+    if(req.body.filterObj.range){
+        let day = new Date();
+        day.setDate(day.getDate() - req.body.filterObj.range);
+        filter.createdAt = {$gte: day}
+    }
+
+    let count = await model.Vehicle.countDocuments(filter);
+    model.Vehicle.find(filter)
         .sort(req.body.sort)
         .skip((req.body.page -1) * req.body.sizePerPage)
         .limit(req.body.sizePerPage)

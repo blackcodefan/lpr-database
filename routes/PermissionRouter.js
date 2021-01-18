@@ -4,7 +4,7 @@ const model = require('../model');
 Router.post('/create', (req, res) =>{
     model.Permission.create(req.body, (error, document)=>{
         if(error)
-            res.status(500).send({success: false, errorMsg: "Algo deu errado"})
+            res.status(500).send({success: false, errorMsg: "Algo deu errado"});
 
         return res.status(201).send({
             success: true,

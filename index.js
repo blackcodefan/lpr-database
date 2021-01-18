@@ -3,6 +3,7 @@ const cron = require('node-cron');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const socket = require("socket.io");
 require('dotenv').config();
 const route = require('./routes');
 const cronJobs = require('./service/cronjob');
@@ -36,10 +37,20 @@ app.use('/station', route.StationRouter);
 app.use('/camera', route.CameraRouter);
 app.use('/alert', route.AlertRouter);
 
-app.listen(process.env.PORT || 5000, () =>{
+const server = app.listen(process.env.PORT || 5000, () =>{
     console.log(`Server is running on http://localhost:${process.env.PORT}`);
 });
 
+global.io = socket(server, {
+    cors: {
+        origin: process.env.SOCKET_CLIENT,
+        methods: ["GET", "POST"]
+    }
+});
+
+io.on("connection", socket =>{
+    console.log(`Socket client ${socket.id} connected`);
+});
 /** =======================
  *  cron job at 9:00 am brazil time blitz file update on redisDB
  */

@@ -71,17 +71,37 @@ Router.post('/fetchAll', passport.authenticate('jwt', {session: false}), async (
 
 Router.put('/update/:id', passport.authenticate('jwt', {session: false}), (req, res) =>{
 
-    model.User.findByIdAndUpdate(req.params.id, req.body,  {useFindAndModify: false},(err, docs) => {
-        if (err){
-            if(err.code === 11000){
-                res.status(400).send({success:false, errorMsg: "Email ou cpf duplicado"});
-            }else{
-                res.status(500).send({success:false, errorMsg: "Algo deu errado"});
+    model.User.findById(req.params.id, (error, user) =>{
+        if(error){
+            return res.status(500).send({success: false, errorMsg: "Algo deu errado"});
+        }
+
+        user.name = req.body.name;
+        user.cpf = req.body.cpf;
+        user.organization = req.body.organization;
+        user.city = req.body.city;
+        user.group = req.body.group;
+        user.permissions = req.body.permissions;
+        user.email = req.body.email;
+        user.whatsApp = req.body.whatsApp;
+        user.mobile = req.body.mobile;
+        user.role = req.body.role;
+        user.sms = req.body.sms;
+        user.whatsAppMessage = req.body.whatsAppMessage;
+        user.mail = req.body.mail;
+
+        user.save((error, document) =>{
+            if(error){
+                return res.status(500).send({
+                    success:false,
+                    errorMsg: "Algo deu errado"
+                });
             }
-        }
-        else{
-            res.status(202).send({success:true, doc: docs});
-        }
+            return res.status(201).send({
+                success: true,
+                user: document
+            })
+        });
     });
 });
 

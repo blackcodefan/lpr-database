@@ -5,7 +5,6 @@ const model = require('../model');
 const client = require('../service/redisDB');
 
 Router.post('/create', passport.authenticate('jwt', {session: false}), (req, res) =>{
-    /// Redis DB should be added
     let alert = {...req.body};
     alert.createdBy = req.user._id;
     model.Alert.create(alert, (error, document) =>{
