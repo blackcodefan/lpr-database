@@ -21,14 +21,7 @@ const biltz = () =>{
                 let alertType = trimmed.slice(-1);
                 client.hmset('alert', license, alertType);
             }
-        })
-            .on('close', () =>{
-                try{
-                    client.save();
-                }catch (e) {
-                    console.log('already saving is in progress');
-                }
-            });
+        });
     }
 };
 
@@ -43,14 +36,7 @@ const color = () =>{
                 let colorName = trimmed.substring(2);
                 client.hmset('color', colorNumber, colorName);
             }
-        })
-            .on('close', () =>{
-                try{
-                    client.save();
-                }catch (e) {
-                    console.log('already saving is in progress');
-                }
-            });
+        });
     }
 };
 
@@ -65,14 +51,7 @@ const type = () =>{
                 let typeName = trimmed.substring(2);
                 client.hmset('type', typeNumber, typeName);
             }
-        })
-            .on('close', () =>{
-                try{
-                    client.save();
-                }catch (e) {
-                    console.log('already saving is in progress');
-                }
-            });
+        });
     }
 };
 
@@ -87,14 +66,7 @@ const brand = () =>{
                 let brandName = trimmed.substring(6);
                 client.hmset('brand', brandNumber, brandName);
             }
-        })
-            .on('close', () =>{
-                try{
-                    client.save();
-                }catch (e) {
-                    console.log('already saving is in progress');
-                }
-            });
+        });
     }
 };
 
@@ -110,14 +82,7 @@ const place = () =>{
                 let placeName = trimmed.substring(4);
                 client.hmset('place', placeNumber, placeName);
             }
-        })
-            .on('close', () =>{
-                try{
-                    client.save();
-                }catch (e) {
-                    console.log('already saving is in progress');
-                }
-            });
+        });
     }
 };
 
@@ -150,14 +115,7 @@ const renavam = () =>{
                     owner: owner
                 }))
             }
-        })
-            .on('close', () =>{
-                try{
-                    client.save();
-                }catch (e) {
-                    console.log('already saving is in progress');
-                }
-            });
+        });
     }
 };
 
