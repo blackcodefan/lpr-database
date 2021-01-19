@@ -206,9 +206,9 @@ Router.post('/alert', passport.authenticate('jwt', {session: false}), async (req
 Router.get('/fetch/:id', passport.authenticate('jwt', {session: false}), async (req, res) =>{
     let vehicle = await model.Vehicle.findById({_id: req.params.id}, {_id: 0});
     if(vehicle){
-        let station = await model.Station.findOne({id: vehicle.station});
-        let camera = await model.Camera.findOne({station: station._id, cameraId: vehicle.camera})
+        let station = await model.Station.findOne({id: vehicle.station})
             .populate({path: 'city'});
+        let camera = await model.Camera.findOne({station: station._id, cameraId: vehicle.camera});
         return res.status(200).send({
             success: true,
             vehicle: vehicle,

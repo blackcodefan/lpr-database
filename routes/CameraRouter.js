@@ -44,14 +44,23 @@ Router.get('/fetch', passport.authenticate('jwt', {session: false}), async (req,
 
 Router.post('/create', passport.authenticate('jwt', {session: false}), (req, res) =>{
     let camera = new model.Camera(req.body);
-    model.Camera.findOne({station: req.body.station, cameraId: req.body.cameraId})
-        .then(document=>{
-            if(document)
-                return res.status(400).send({
-                    true:false,
-                    errorMsg: "Id da câmera duplicada"
+    model.Camera.find({station: req.body.station})
+        .sort({cameraId: -1})
+        .limit(1)
+        .exec((error, documents) =>{
+            if(error){
+                return res.status(500).send({
+                    success: false,
+                    errorMsg: "Algo deu errado"
                 });
-            else
+            }else{
+                if(documents.length < 1){
+                    camera.cameraId = '01';
+                }else{
+                    let tmp = parseInt(documents[0].cameraId) + 1;
+                    tmp < 10?camera.cameraId = `0${tmp}`:camera.cameraId=tmp.toString();
+                }
+
                 camera.save((error, document) =>{
                     if(error)
                         return res.status(500).send({
@@ -64,6 +73,7 @@ Router.post('/create', passport.authenticate('jwt', {session: false}), (req, res
                         record: document
                     })
                 });
+            }
         });
 });
 
@@ -91,6 +101,12 @@ Router.delete('/delete', passport.authenticate('jwt', {session: false}),  (req, 
         .then(response =>{
             res.status(202).send({success: true, count: response.deletedCount});
         });
+});
+
+Router.get('/count', passport.authenticate('jwt', {session: false}), async (req, res) =>{
+    let count = await model.Camera.countDocuments({active: true});
+
+    return res.status(200).send({success: true, total: count});
 });
 
 module.exports = Router;

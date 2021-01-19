@@ -10,6 +10,10 @@ const StationSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'City',
         required: true
+    },
+    active: {
+        type: Boolean,
+        default: true
     }
     },
     {

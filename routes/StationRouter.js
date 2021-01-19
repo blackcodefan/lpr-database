@@ -4,7 +4,7 @@ const passportConfig = require('../passport');
 const model = require('../model');
 
 Router.get('/fetchAll', passport.authenticate('jwt', {session: false}), (req, res) =>{
-    model.Station.find()
+    model.Station.find({active: true})
         .sort({id: 'asc'})
         .populate({path: 'city', select: ['city', 'state']})
         .exec((error, documents) =>{
@@ -68,6 +68,12 @@ Router.delete('/delete', passport.authenticate('jwt', {session: false}),  (req, 
         .then(response =>{
             res.status(202).send({success: true, count: response.deletedCount});
         });
+});
+
+Router.get('/count', passport.authenticate('jwt', {session: false}), async (req, res) =>{
+    let count = await model.Station.countDocuments({active: true});
+
+    return res.status(200).send({success: true, total: count});
 });
 
 module.exports = Router;

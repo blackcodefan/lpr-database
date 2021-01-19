@@ -82,4 +82,15 @@ Router.delete('/delete', passport.authenticate('jwt', {session: false}),  (req, 
         });
 });
 
+Router.get('/count', passport.authenticate('jwt', {session: false}), async (req, res) =>{
+    let count = 0;
+    if(req.user.role !== 'admin'){
+        count = await model.Alert.countDocuments({active: true});
+    }else{
+        count = await model.Alert.countDocuments({active: true, createdBy: req.user._id});
+    }
+
+    return res.status(200).send({success: true, total: count});
+});
+
 module.exports = Router;

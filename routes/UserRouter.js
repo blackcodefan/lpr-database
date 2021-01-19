@@ -146,4 +146,10 @@ Router.get('/profile/:id', passport.authenticate('jwt', {session: false}), (req,
         });
 });
 
+Router.get('/count', passport.authenticate('jwt', {session: false}), async (req, res) =>{
+    let count = await model.User.countDocuments();
+
+    return res.status(200).send({success: true, total: count});
+});
+
 module.exports = Router;

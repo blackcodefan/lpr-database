@@ -48,6 +48,10 @@ const CameraSchema = mongoose.Schema({
     },
     note:{
         type: String,
+    },
+    active: {
+        type: Boolean,
+        default: true
     }
 },{
     timestamps: true
