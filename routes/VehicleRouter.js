@@ -138,11 +138,11 @@ Router.post('/add', async (req, res) =>{
 
     model.Vehicle.create(vehicle.toJson(), (error, document) =>{
         if(error)
-            return res.status(500).send(0);
+            return res.status(500).send({success: 0});
 
         else {
             io.emit('vehicle', document);
-            return res.status(201).send(1);
+            return res.status(201).send({success: 1});
         }
     });
 });
