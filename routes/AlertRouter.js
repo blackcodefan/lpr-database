@@ -5,6 +5,9 @@ const model = require('../model');
 const client = require('../service/redisDB');
 
 Router.post('/create', passport.authenticate('jwt', {session: false}), (req, res) =>{
+    if(req.user.role !== 'admin' && req.user.permissions.indexOf('5fe9aea2f92b033e84a33aca') === -1){
+        return res.status(401).send({success: false, errorMsg: "Permissão negada"});
+    }
     let alert = {...req.body};
     alert.createdBy = req.user._id;
     model.Alert.create(alert, (error, document) =>{

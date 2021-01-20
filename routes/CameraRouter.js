@@ -43,6 +43,9 @@ Router.get('/fetch', passport.authenticate('jwt', {session: false}), async (req,
 });
 
 Router.post('/create', passport.authenticate('jwt', {session: false}), (req, res) =>{
+    if(req.user.role !== 'admin' && req.user.permissions.indexOf('5fe9ae85f92b033e84a33ac9') === -1){
+        return res.status(401).send({success: false, errorMsg: "Permissão negada"});
+    }
     let camera = new model.Camera(req.body);
     model.Camera.find({station: req.body.station})
         .sort({cameraId: -1})

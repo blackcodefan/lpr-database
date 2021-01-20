@@ -18,6 +18,9 @@ Router.get('/fetchAll', passport.authenticate('jwt', {session: false}), (req, re
 });
 
 Router.post('/create', passport.authenticate('jwt', {session: false}), (req, res) =>{
+    if(req.user.role !== 'admin' && req.user.permissions.indexOf('5fe9ae6af92b033e84a33ac8') === -1){
+        return res.status(401).send({success: false, errorMsg: "Permissão negada"});
+    }
     let station = new model.Station(req.body);
     station.save((error, document) =>{
         if(error){

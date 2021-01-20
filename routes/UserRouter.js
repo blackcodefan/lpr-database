@@ -48,6 +48,9 @@ Router.post('/create', passport.authenticate('jwt', {session: false}), (req, res
 });
 
 Router.post('/fetchAll', passport.authenticate('jwt', {session: false}), async (req, res) =>{
+    if(req.user.role !== 'admin'){
+        return res.status(401).send({success: false, errorMsg: "Permissão negada"});
+    }
     let count = await model.User.countDocuments(req.body.filterObj);
 
     model.User.find(req.body.filterObj)
@@ -70,6 +73,9 @@ Router.post('/fetchAll', passport.authenticate('jwt', {session: false}), async (
 });
 
 Router.put('/update/:id', passport.authenticate('jwt', {session: false}), (req, res) =>{
+    if(req.user.role !== 'admin'){
+        return res.status(401).send({success: false, errorMsg: "Permissão negada"});
+    }
 
     model.User.findById(req.params.id, (error, user) =>{
         if(error){
@@ -119,7 +125,14 @@ Router.post('/login', passport.authenticate('local', {session: false}), (req, re
     if(req.isAuthenticated()){
         const token = signToken(req.user._id);
         res.cookie('access_token', token, {httpOnly: true, sameSite: true});
-        res.status(200).send({success: true, user: req.user})
+        res.status(200).send({success: true, user: req.user});
+        model.Log.create({
+            action: 'Login',
+            user: req.user._id,
+            description: 'User logged in'
+        }).then((res) =>{
+            console.log(res)
+        })
     }
 });
 

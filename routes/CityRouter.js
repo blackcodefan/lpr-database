@@ -4,6 +4,9 @@ const passportConfig = require('../passport');
 const model = require('../model');
 
 Router.post('/create', passport.authenticate('jwt', {session: false}), (req, res) =>{
+    if(req.user.role !== 'admin' && req.user.permissions.indexOf('5fe9ae45f92b033e84a33ac7') === -1){
+        return res.status(401).send({success: false, errorMsg: "Permissão negada"});
+    }
     let city = new model.City(req.body);
     city.save((error, document) =>{
         if(error)

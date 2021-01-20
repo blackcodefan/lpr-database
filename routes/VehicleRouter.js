@@ -138,17 +138,11 @@ Router.post('/add', async (req, res) =>{
 
     model.Vehicle.create(vehicle.toJson(), (error, document) =>{
         if(error)
-            return res.status(500).send({
-                true:false,
-                errorMsg: "Algo deu errado"
-            });
+            return res.status(500).send(0);
 
         else {
             io.emit('vehicle', document);
-            return res.status(201).send({
-            success: true,
-            record: document
-        });
+            return res.status(201).send(1);
         }
     });
 });
