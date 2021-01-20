@@ -141,7 +141,9 @@ Router.post('/add', async (req, res) =>{
             return res.status(500).send({success: 0});
 
         else {
-            io.emit('vehicle', document);
+            if(vehicle.alert !== 0){
+                io.emit('vehicle', document);
+            }
             return res.status(201).send({success: 1});
         }
     });
