@@ -36,6 +36,7 @@ app.use('/user', route.UserRouter);
 app.use('/station', route.StationRouter);
 app.use('/camera', route.CameraRouter);
 app.use('/alert', route.AlertRouter);
+app.use('/notification', route.NotificationRouter);
 
 const server = app.listen(process.env.PORT || 5000, () =>{
     console.log(`Server is running on http://localhost:${process.env.PORT}`);

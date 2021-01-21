@@ -44,7 +44,7 @@ const resetMail = (email, token) =>({
     to: email,
     subject: "Redefinir senha",
     html: `<p>Você solicitou a redefinição de senha</p>
-<h5>Click in this <a href="${process.env.WEB_SERVER_EXTERNAL}/#/cmVzZXRwYXNzd29yZA/${token}" >link</a> to reset password</h5>`
+<h5>Clique neste <a href="${process.env.WEB_SERVER_EXTERNAL}/#/cmVzZXRwYXNzd29yZA/${token}" >link</a> para redefinir a senha</h5>`
 });
 
 const sendMail =  (users, vehicle) =>{

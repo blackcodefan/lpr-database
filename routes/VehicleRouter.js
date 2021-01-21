@@ -112,29 +112,29 @@ Router.post('/add', async (req, res) =>{
     }
 
     let alerts = await hmget('alert', vehicle.license);
+    let users = [];
 
     if(alerts[0]){
         vehicle.alert = parseInt(alerts[0]);
-
         let station = await model.Station.findOne({id: vehicle.station});
         let camera = await model.Camera.findOne({cameraId: vehicle.camera, station: station._id});
         let city = await model.City.findById(camera.city);
         vehicle.street = camera.street;
         vehicle.city = `${city.city}-${city.state}`;
-        let users = [];
         if(vehicle.alert === 1 || vehicle.alert === 4){
-            users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {_id: 0, role: 0, password: 0, createdAt: 0, updatedAt: 0});
+            users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, createdAt: 0, updatedAt: 0});
             thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
         }else if(vehicle.alert === 5){
             let alert = await model.Alert.findOne({plate: vehicle.license, type: vehicle.alert});
             if(alert){
-                users = await model.User.find({_id: alert.createdBy}, {_id: 0, role: 0, password: 0, createdAt: 0, updatedAt: 0});
+                users = await model.User.find({_id: alert.createdBy}, {role: 0, password: 0, createdAt: 0, updatedAt: 0});
                 thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
             }
+        }else if(vehicle.alert === 2 || vehicle.alert === 3){
+            users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, createdAt: 0, updatedAt: 0});
         }
     }
 
-    /// missing system notification
 
     model.Vehicle.create(vehicle.toJson(), (error, document) =>{
         if(error)
@@ -143,6 +143,27 @@ Router.post('/add', async (req, res) =>{
         else {
             if(vehicle.alert !== 0){
                 io.emit('vehicle', document);
+
+                if(users.length > 0){
+                    let notifications = [], socketTargets = [];
+                    for( let user of users){
+                        notifications.push({
+                            user: user._id,
+                            vehicle: document._id,
+                        });
+                        socketTargets.push(user._id);
+                    }
+
+                    model.Notification.insertMany(notifications, (error, docs) =>{
+                        let results = {};
+                        for(let doc of docs){
+                            doc.vehicle = document;
+                            results[doc.user] = doc;
+                        }
+                        io.emit('notification', {users: socketTargets, vehicles: results});
+                    });
+                }
+
             }
             return res.status(201).send({success: 1});
         }
@@ -171,7 +192,6 @@ Router.post('/fetchAll', passport.authenticate('jwt', {session: false}), async (
 
 Router.post('/alert', passport.authenticate('jwt', {session: false}), async (req, res) =>{
 
-    // console.log(count);
     let filter = {};
     req.body.filterObj.alert.length < 1
         ?filter.alert = {$ne: 0}

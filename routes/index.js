@@ -6,6 +6,7 @@ const user = require('./UserRouter');
 const station = require('./StationRouter');
 const camera = require('./CameraRouter');
 const alert = require('./AlertRouter');
+const notification = require('./NotificationRouter');
 
 module.exports = {
     VehicleRouter: vehicle,
@@ -15,5 +16,6 @@ module.exports = {
     UserRouter: user,
     StationRouter: station,
     CameraRouter: camera,
-    AlertRouter: alert
+    AlertRouter: alert,
+    NotificationRouter: notification
 };

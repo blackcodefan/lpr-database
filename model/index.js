@@ -7,6 +7,7 @@ const station = require('./Station');
 const camera = require('./Camera');
 const alert = require('./Alert');
 const log = require('./Log');
+const notification = require('./Notification');
 
 module.exports = {
     User: user,
@@ -17,5 +18,6 @@ module.exports = {
     Station: station,
     Camera: camera,
     Alert: alert,
-    Log: log
+    Log: log,
+    Notification: notification
 };
