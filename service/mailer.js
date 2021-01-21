@@ -39,6 +39,14 @@ const mail = (user, vehicle) =>({
     ]
 });
 
+const resetMail = (email, token) =>({
+    from: process.env.GMAIL_USER_NAME,
+    to: email,
+    subject: "Redefinir senha",
+    html: `<p>Você solicitou a redefinição de senha</p>
+<h5>Click in this <a href="${process.env.WEB_SERVER_EXTERNAL}/#/cmVzZXRwYXNzd29yZA/${token}" >link</a> to reset password</h5>`
+});
+
 const sendMail =  (users, vehicle) =>{
 
         for(let user of users){
@@ -49,7 +57,18 @@ const sendMail =  (users, vehicle) =>{
                     console.log(info.response);
             });
         }
-
 };
 
-module.exports = sendMail;
+const sendResetMail = (email, token) =>{
+    transporter.sendMail(resetMail(email, token), (error, info) =>{
+        if(error)
+            console.log(error);
+        else
+            console.log(info.response);
+    })
+};
+
+module.exports = {
+    sendAlertMail: sendMail,
+    sendResetMail: sendResetMail
+};

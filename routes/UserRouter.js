@@ -1,6 +1,8 @@
 const Router = require('express').Router();
+const crypto = require('crypto');
 const passport = require('passport');
 const JWT = require('jsonwebtoken');
+const sendMail = require('../service/mailer');
 const passportConfig = require('../passport');
 const model = require('../model');
 
@@ -163,6 +165,64 @@ Router.get('/count', passport.authenticate('jwt', {session: false}), async (req,
     let count = await model.User.countDocuments();
 
     return res.status(200).send({success: true, total: count});
+});
+
+Router.post('/reset-link', (req, res) =>{
+    crypto.randomBytes(32, (err, buffer) =>{
+        if(err){
+            console.log(err);
+        }
+        const token = buffer.toString("hex");
+        model.User.findOne({email: req.body.email})
+            .then(user =>{
+                if(!user){
+                    return res.status(422).send({success: false, errorMsg: "Usuário não existe"});
+                }else{
+                    user.resetToken = token;
+                    user.tokenExpire = Date.now() + 3600000;
+                    user.save()
+                        .then(response =>{
+                            sendMail.sendResetMail(user.email, token);
+                            return res.status(200).send({success: true});
+                        })
+                }
+            })
+    });
+});
+
+Router.get('/get-link/:token', (req, res) =>{
+    model.User.findOne({resetToken: req.params.token})
+        .then(user =>{
+            if(!user){
+                return res.status(400).send({success: false, errorMsg: 'Token inválido'});
+            }else{
+                if(user.tokenExpire.getTime() > Date.now())
+                    return res.status(200).send({success: true, user: user});
+                else
+                    return res.status(400).send({success: false, errorMsg: "Link expirado"});
+            }
+        });
+});
+
+Router.put('/reset-password', (req, res) =>{
+    model.User.findOne({_id: req.body._id, resetToken: req.body.resetToken})
+        .then(user =>{
+            if(!user){
+                return res.status(400).send({success: false, errorMsg: "Usuário não existe"});
+            }else{
+                if(user.tokenExpire.getTime() > Date.now()){
+                    user.password = req.body.password;
+                    user.resetToken = '';
+                    user.tokenExpire = '';
+                    user.save()
+                        .then(response =>{
+                            return res.status(200).send({success: true});
+                        })
+                }
+                else
+                    return res.status(400).send({success: false, errorMsg: "Link expirado"});
+            }
+        })
 });
 
 module.exports = Router;
