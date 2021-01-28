@@ -236,4 +236,16 @@ Router.get('/fetch/:id', passport.authenticate('jwt', {session: false}), async (
     }
 });
 
+Router.put('/update', passport.authenticate('jwt', {session: false}), (req, res) =>{
+
+    model.Vehicle.findByIdAndUpdate(req.body.id, req.body.query,  {useFindAndModify: false},(err, docs) => {
+        if (err){
+            res.status(500).send({success:false, errorMsg: "Algo deu errado"});
+        }
+        else{
+            res.status(202).send({success:true, docs: docs});
+        }
+    });
+});
+
 module.exports = Router;
