@@ -50,12 +50,14 @@ const resetMail = (email, token) =>({
 const sendMail =  (users, vehicle) =>{
 
         for(let user of users){
-            transporter.sendMail(mail(user, vehicle), (error, info) =>{
-                if(error)
-                    console.log(error);
-                else
-                    console.log(info.response);
-            });
+            if(user.mail){
+                transporter.sendMail(mail(user, vehicle), (error, info) =>{
+                    if(error)
+                        console.log(error);
+                    else
+                        console.log(info.response);
+                });
+            }
         }
 };
 
