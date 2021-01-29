@@ -7,7 +7,9 @@ const passport = require('passport');
 const passportConfig = require('../passport');
 const model = require('../model');
 const { Worker } = require('worker_threads');
-
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const tClient = require('twilio')(accountSid, authToken);
 /**===============================
  *  Extract info from vehicle name. blueprint of vehicle info
  */
@@ -236,6 +238,26 @@ Router.get('/fetch/:id', passport.authenticate('jwt', {session: false}), async (
     }
 });
 
+Router.post('/test', async (req, res) =>{
+    let response1 = await tClient.messages
+        .create({
+            from: '+15136665907',//replace to twillio phone number
+            body: `This is test message from backend.`,
+            mediaUrl: [`https://twilio-cms-prod.s3.amazonaws.com/images/sms_buy_number.width-800.png`],
+            to: '+5548984046118'
+        });
+    console.log(response1);
+    // let response2 = await tClient.messages
+    //     .create({
+    //         from: 'whatsapp:+15136665907',//replace to twillio phone number
+    //         body: `This is test message`,
+    //         mediaUrl: [`https://twilio-cms-prod.s3.amazonaws.com/images/sms_buy_number.width-800.png`],
+    //         to: 'whatsapp:+8613996210576'
+    //     });
+    // console.log(response2)
+    res.status(200).send({success: true})
+});
+
 Router.put('/update', passport.authenticate('jwt', {session: false}), (req, res) =>{
 
     model.Vehicle.findByIdAndUpdate(req.body.id, req.body.query,  {useFindAndModify: false},(err, docs) => {
@@ -246,6 +268,22 @@ Router.put('/update', passport.authenticate('jwt', {session: false}), (req, res)
             res.status(202).send({success:true, docs: docs});
         }
     });
+});
+
+Router.get('/lastAlert/:station/:camera', passport.authenticate('jwt', {session: false}), (req, res) =>{
+    model.Vehicle.find({station: req.params.station, camera: req.params.camera, alert: {$ne: 0}})
+        .sort({createdAt: 'desc'})
+        .limit(1)
+        .exec((error, documents) =>{
+            if(error){
+                return res.status(500).send({
+                    success: false,
+                    errorMsg: "Algo deu errado"
+                });
+            }
+
+            return res.status(200).send({success: true, vehicles: documents});
+        });
 });
 
 module.exports = Router;
