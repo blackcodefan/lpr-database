@@ -195,9 +195,8 @@ Router.post('/fetchAll', passport.authenticate('jwt', {session: false}), async (
 Router.post('/alert', passport.authenticate('jwt', {session: false}), async (req, res) =>{
 
     let filter = {};
-    req.body.filterObj.alert.length < 1
-        ?filter.alert = {$ne: 0}
-        :filter.alert = {$in: req.body.filterObj.alert};
+    if(req.body.filterObj.alert.length > 0)
+        filter.alert = {$in: req.body.filterObj.alert};
     if(req.body.filterObj.range){
         let day = new Date();
         day.setDate(day.getDate() - req.body.filterObj.range);
