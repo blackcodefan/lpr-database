@@ -25,6 +25,10 @@ const VehicleSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    originColor:{// from renavam
+        type: String,
+        required: true
+    },
     vehicleImg:{
         type: String,
         required:true

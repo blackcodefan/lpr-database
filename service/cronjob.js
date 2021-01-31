@@ -30,7 +30,7 @@ const color = () =>{
     if(fs.existsSync(file)){
         const lineStream = readInterface(file);
         lineStream.on('line', line =>{
-            let trimmed = line.trim().replace(/\s/g,'');
+            let trimmed = line.trim();
             if(trimmed){
                 let colorNumber = trimmed.substring(0, 2);
                 let colorName = trimmed.substring(2);
@@ -45,7 +45,7 @@ const type = () =>{
     if(fs.existsSync(file)){
         const lineStream = readInterface(file);
         lineStream.on('line', line =>{
-            let trimmed = line.trim().replace(/\s/g,'');
+            let trimmed = line.trim();
             if(trimmed){
                 let typeNumber = trimmed.substring(0, 2);
                 let typeName = trimmed.substring(2);
@@ -60,7 +60,7 @@ const brand = () =>{
     if(fs.existsSync(file)){
         const lineStream = readInterface(file);
         lineStream.on('line', line =>{
-            let trimmed = line.trim().replace(/\s/g,'');
+            let trimmed = line.trim();
             if(trimmed){
                 let brandNumber = trimmed.substring(0, 6);
                 let brandName = trimmed.substring(6);
@@ -75,7 +75,7 @@ const place = () =>{
     if(fs.existsSync(file)){
         const lineStream = readInterface(file);
         lineStream.on('line', line =>{
-            let trimmed = line.trim().replace(/\s/g,'');
+            let trimmed = line.trim();
             if (trimmed) {
                 trimmed = trimmed.replace(/\s\s+/g, ' ');
                 let placeNumber = trimmed.substring(0, 4);
