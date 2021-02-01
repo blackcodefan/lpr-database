@@ -49,6 +49,10 @@ const VehicleSchema = new mongoose.Schema({
     },
     owner: {
         type: String
+    },
+    city:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'City'
     }
     },
     {

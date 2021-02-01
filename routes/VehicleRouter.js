@@ -25,6 +25,7 @@ class VehicleImageInterpreter {
         this.alert = 0;
         this.street = '';
         this.city = '';
+        this.cityLabel='';
         this.model = '';
         this.renavamId = '';
         this.owner = '';
@@ -49,6 +50,48 @@ class VehicleImageInterpreter {
             originColor: this.originColor,
             vehicleImg: this.vehicleName(),
             plateImg: this.plateImgName(),
+            alert: this.alert,
+            alertType: alertTypes[this.alert],
+            city: this.city,
+            street: this.street,
+            model: this.model,
+            renavam: this.renavamId,
+            owner: this.owner
+        }
+    }
+}
+
+class VehicleFromDocument {
+    constructor(document){
+        this.station = document.station;
+        this.camera = document.camera;
+        this.license = document.license;
+        this.date = document.data;
+        this.time = document.time;
+        this.color = document.color;
+        this.originColor = document.originColor;
+        this.alert = document.alert;
+        this.street = '';
+        this.city = document.city;
+        this.cityLabel='';
+        this.model = document.model;
+        this.renavamId = document.renavam;
+        this.owner = document.owner;
+        this.vehicleImg = document.vehicleImg;
+        this.plateImg = document.plateImg;
+    }
+
+    toJson(){
+        return {
+            station: this.station,
+            camera: this.camera,
+            license: this.license,
+            date: this.date,
+            time: this.time,
+            color: this.color,
+            originColor: this.originColor,
+            vehicleImg: this.vehicleImg,
+            plateImg: this.plateImg,
             alert: this.alert,
             alertType: alertTypes[this.alert],
             city: this.city,
@@ -122,7 +165,8 @@ Router.post('/add', async (req, res) =>{
         let camera = await model.Camera.findOne({cameraId: vehicle.camera, station: station._id});
         let city = await model.City.findById(camera.city);
         vehicle.street = camera.street;
-        vehicle.city = `${city.city}-${city.state}`;
+        vehicle.city = camera.city;
+        vehicle.cityLabel = `${city.city}-${city.state}`;
         if(vehicle.alert === 1 || vehicle.alert === 4){
             users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, createdAt: 0, updatedAt: 0});
             thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
@@ -136,7 +180,6 @@ Router.post('/add', async (req, res) =>{
             users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, createdAt: 0, updatedAt: 0});
         }
     }
-
 
     model.Vehicle.create(vehicle.toJson(), (error, document) =>{
         if(error)
@@ -237,15 +280,101 @@ Router.get('/fetch/:id', passport.authenticate('jwt', {session: false}), async (
     }
 });
 
-Router.put('/update', passport.authenticate('jwt', {session: false}), (req, res) =>{
+Router.put('/update', passport.authenticate('jwt', {session: false}), async (req, res) =>{
+    if(req.body.query.license){
+        model.Vehicle.findById(req.body.id, {useFindAndModify: false}, async (error, document) =>{
+            if(error){
+                return res.status(500).send({
+                    success: false,
+                    errorMsg: "Algo deu errado"
+                });
+            }
+            document.license = req.body.query.license;
+            let renavamData = await hmget('renavam', req.body.query.license);
+            if(renavamData[0]){
+                let renavamObj = JSON.parse(renavamData[0]);
+                let modelId = renavamObj.makeAndModel;
+                let modelData = await hmget('brand', modelId);
+                if(modelData[0]){
+                    document.model = modelData[0];
+                }
+                document.renavamId = renavamObj.renavamId;
+                document.owner = renavamObj.owner;
+                document.originColor = renavamObj.color;
+            }
+            let alerts = await hmget('alert', req.body.query.license);
+            let users = [];
 
-    model.Vehicle.findByIdAndUpdate(req.body.id, req.body.query,  {useFindAndModify: false},(err, docs) => {
-        if (err){
-            res.status(500).send({success:false, errorMsg: "Algo deu errado"});
-        }
-        else{
-            res.status(202).send({success:true, docs: docs});
-        }
+            let station = await model.Station.findOne({id: document.station});
+            let camera = await model.Camera.findOne({cameraId: document.camera, station: station._id});
+            let city = await model.City.findById(camera.city);
+            document.street = camera.street;
+            document.city = camera.city;
+            document.cityLabel = `${city.city}-${city.state}`;
+
+            if(alerts[0]){
+                document.alert = parseInt(alerts[0]);
+
+                let vehicle = new VehicleFromDocument(document);
+                if(document.alert === 1 || document.alert === 4){
+                    users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, createdAt: 0, updatedAt: 0});
+                    thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
+                }else if(document.alert === 5){
+                    let alert = await model.Alert.findOne({plate: document.license, type: document.alert});
+                    if(alert){
+                        users = await model.User.find({_id: alert.createdBy}, {role: 0, password: 0, createdAt: 0, updatedAt: 0});
+                        thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
+                    }
+                }else if(document.alert === 2 || document.alert === 3){
+                    users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, createdAt: 0, updatedAt: 0});
+                }
+            }
+            else{
+                document.alert = 0;
+            }
+
+            document.save((error, document) =>{
+                if(error)
+                    return res.status(500).send({success: 0});
+
+                else {
+                    if(document.alert !== 0){
+                        io.emit('vehicle', document);
+
+                        if(users.length > 0){
+                            let notifications = [], socketTargets = [];
+                            for( let user of users){
+                                notifications.push({
+                                    user: user._id,
+                                    vehicle: document._id,
+                                });
+                                socketTargets.push(user._id);
+                            }
+
+                            model.Notification.insertMany(notifications, (error, docs) =>{
+                                let results = {};
+                                for(let doc of docs){
+                                    doc.vehicle = document;
+                                    results[doc.user] = doc;
+                                }
+                                io.emit('notification', {users: socketTargets, vehicles: results});
+                            });
+                        }
+
+                    }
+                    return res.status(201).send({success: 1});
+                }
+            });
+        });
+    }
+    else
+        model.Vehicle.findByIdAndUpdate(req.body.id, req.body.query,  {useFindAndModify: false},(err, docs) => {
+            if (err){
+                res.status(500).send({success:false, errorMsg: "Algo deu errado"});
+            }
+            else{
+                res.status(202).send({success:true, docs: docs});
+            }
     });
 });
 
@@ -263,6 +392,61 @@ Router.get('/lastAlert/:station/:camera', passport.authenticate('jwt', {session:
 
             return res.status(200).send({success: true, vehicles: documents});
         });
+});
+
+Router.post('/search', passport.authenticate('jwt', {session: false}), async (req, res) =>{
+    let search = [];
+    if(req.body.startDate && req.body.endDate){
+        let start = new Date(req.body.startDate);
+        let end = new Date(req.body.endDate);
+        search.push({range:{path: 'createdAt', gte: start, lte: end}});
+    }
+    if(req.body.color) search.push({text: {query: req.body.color, path: ['color', 'originColor']}});
+    if(req.body.plate) search.push({wildcard:{query: req.body.plate, path: "license", allowAnalyzedField: true}});
+    if(req.body.brand && req.body.model){
+        search.push({
+            wildcard: {
+                query: `*${req.body.model.toUpperCase()}*${req.body.brand.toUpperCase()}*`,
+                path: "model",
+                allowAnalyzedField: true
+            },
+        });
+    }else if(req.body.brand){
+        search.push({
+            wildcard: {
+                query: `*${req.body.brand.toUpperCase()}*`,
+                path: "model",
+                allowAnalyzedField: true
+            },
+        });
+    }else if(req.body.model){
+        search.push({
+            wildcard: {
+                query: `*${req.body.model.toUpperCase()}*`,
+                path: "model",
+                allowAnalyzedField: true
+            },
+        });
+    }
+
+    let aggregate;
+    if(search.length > 0) aggregate = model.Vehicle.aggregate().search({compound: {must: search}});
+    else aggregate = model.Vehicle.aggregate();
+
+    aggregate
+        .sort({createdAt: 'desc'})
+        .skip((req.body.page -1) * req.body.sizePerPage)
+        .limit(req.body.sizePerPage)
+        .exec((error, documents)=>{
+            if(error){
+                return res.status(500).send({
+                    success: false,
+                    errorMsg: "Algo deu errado"
+                });
+            }
+
+            return res.status(200).send({success: true, vehicles: documents, total: 2});
+    });
 });
 
 module.exports = Router;

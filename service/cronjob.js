@@ -91,28 +91,30 @@ const renavam = () =>{
     if(fs.existsSync(file)){
         const lineStream = readInterface(file);
         lineStream.on('line', line =>{
-            let trimmed = line.trim().replace(/\s/g,'');
+            let trimmed = line.trim();
             if (trimmed) {
                 let subStrings = trimmed.split('#');
-                let license = subStrings[0];
-                let state = subStrings[6].slice(1);
-                let renavamId = subStrings[7];
-                let cpf = subStrings[10].slice(3);
-                let makeYear = subStrings[8];
-                let modelYear = subStrings[9];
-                let color = subStrings[2];
-                let makeAndModel = subStrings[1];
-                let owner = subStrings[11];
-                client.hmset('renavam', license, JSON.stringify({
-                    state: state,
-                    renavamId: renavamId,
-                    cdf:cpf,
-                    makeYear: makeYear,
-                    modelYear: modelYear,
-                    color: color,
-                    makeAndModel: makeAndModel,
-                    owner: owner
-                }))
+                if(subStrings.length > 0){
+                    let license = subStrings[0];
+                    let state = subStrings[6].slice(1);
+                    let renavamId = subStrings[7];
+                    let cpf = subStrings[10].slice(3);
+                    let makeYear = subStrings[8];
+                    let modelYear = subStrings[9];
+                    let color = subStrings[2];
+                    let makeAndModel = subStrings[1];
+                    let owner = subStrings[11];
+                    client.hmset('renavam', license, JSON.stringify({
+                        state: state,
+                        renavamId: renavamId,
+                        cdf:cpf,
+                        makeYear: makeYear,
+                        modelYear: modelYear,
+                        color: color,
+                        makeAndModel: makeAndModel,
+                        owner: owner
+                    }))
+                }
             }
         });
     }

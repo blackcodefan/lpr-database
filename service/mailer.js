@@ -19,7 +19,7 @@ const mail = (user, vehicle) =>({
 <br>Este é o e-mail de alerta da LPR.<br/>
 <br>Licença: ${vehicle.license}</br>
 <br>Tipo de Alerta: ${vehicle.alertType}</br>
-<br>Cidade: ${vehicle.city}</br>
+<br>Cidade: ${vehicle.cityLabel}</br>
 <br>Rua: ${vehicle.street}</br>
 <br>Tempo: ${vehicle.time} ${vehicle.date}</br>
 <hr/>
