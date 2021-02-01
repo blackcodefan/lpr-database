@@ -402,7 +402,7 @@ Router.post('/search', passport.authenticate('jwt', {session: false}), async (re
         search.push({range:{path: 'createdAt', gte: start, lte: end}});
     }
     if(req.body.color) search.push({text: {query: req.body.color, path: ['color', 'originColor']}});
-    if(req.body.plate) search.push({wildcard:{query: req.body.plate, path: "license", allowAnalyzedField: true}});
+    if(req.body.plate) search.push({wildcard:{query: req.body.plate.toUpperCase(), path: "license", allowAnalyzedField: true}});
     if(req.body.brand && req.body.model){
         search.push({
             wildcard: {
