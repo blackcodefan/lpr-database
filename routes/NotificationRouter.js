@@ -9,6 +9,7 @@ Router.get('/get', passport.authenticate('jwt', {session: false}), async (req, r
 
     model.Notification.find({user: req.user._id, status: false})
         .populate({path: 'vehicle'})
+        .limit(100)
         .exec((error, documents) =>{
             if(error){
                 return res.status(500).send({
