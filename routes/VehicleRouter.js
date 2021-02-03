@@ -39,6 +39,13 @@ class VehicleImageInterpreter {
         return `${this.station}_${this.camera}_${this.license}_${this.date}_${this.time}${this.ext}`;
     }
 
+    getDetectedTime(){
+        let subString = this.date.split('-');
+        let formattedDate = `${subString[1]}-${subString[0]}-${subString[2]}`;
+        let formattedTime = this.time.replace(/-/g, ":");
+        return new Date(formattedDate + ' ' + formattedTime);
+    }
+
     toJson(){
         return {
             station: this.station,
@@ -56,7 +63,8 @@ class VehicleImageInterpreter {
             street: this.street,
             model: this.model,
             renavam: this.renavamId,
-            owner: this.owner
+            owner: this.owner,
+            detectedAt: this.getDetectedTime()
         }
     }
 }
@@ -128,6 +136,13 @@ const thread = data =>{
         worker.on('message', resolve);
         worker.on('error', reject);
     });
+};
+
+const dateFormatter = (date, time) =>{
+    let subString = date.split('-');
+    let formattedDate = `${subString[1]}-${subString[0]}-${subString[2]}`;
+    let formattedTime = time.replace(/-/g, ":");
+    return new Date(formattedDate + ' ' + formattedTime);
 };
 
 /**===========================

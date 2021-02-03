@@ -53,6 +53,10 @@ const VehicleSchema = new mongoose.Schema({
     city:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'City'
+    },
+    detectedAt:{
+        type: Date,
+        required: true
     }
     },
     {
