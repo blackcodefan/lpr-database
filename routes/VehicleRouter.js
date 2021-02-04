@@ -183,16 +183,16 @@ Router.post('/add', async (req, res) =>{
         vehicle.city = camera.city;
         vehicle.cityLabel = `${city.city}-${city.state}`;
         if(vehicle.alert === 1 || vehicle.alert === 4){
-            users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, createdAt: 0, updatedAt: 0});
+            users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, detectedAt: 0, updatedAt: 0});
             thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
         }else if(vehicle.alert === 5){
             let alert = await model.Alert.findOne({plate: vehicle.license, type: vehicle.alert});
             if(alert){
-                users = await model.User.find({_id: alert.createdBy}, {role: 0, password: 0, createdAt: 0, updatedAt: 0});
+                users = await model.User.find({_id: alert.createdBy}, {role: 0, password: 0, detectedAt: 0, updatedAt: 0});
                 thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
             }
         }else if(vehicle.alert === 2 || vehicle.alert === 3){
-            users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, createdAt: 0, updatedAt: 0});
+            users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, detectedAt: 0, updatedAt: 0});
         }
     }
 
@@ -258,7 +258,7 @@ Router.post('/alert', passport.authenticate('jwt', {session: false}), async (req
     if(req.body.filterObj.range){
         let day = new Date();
         day.setDate(day.getDate() - req.body.filterObj.range);
-        filter.createdAt = {$gte: day}
+        filter.detectedAt = {$gte: day}
     }
 
     let count = await model.Vehicle.countDocuments(filter);
@@ -332,16 +332,16 @@ Router.put('/update', passport.authenticate('jwt', {session: false}), async (req
 
                 let vehicle = new VehicleFromDocument(document);
                 if(document.alert === 1 || document.alert === 4){
-                    users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, createdAt: 0, updatedAt: 0});
+                    users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, detectedAt: 0, updatedAt: 0});
                     thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
                 }else if(document.alert === 5){
                     let alert = await model.Alert.findOne({plate: document.license, type: document.alert});
                     if(alert){
-                        users = await model.User.find({_id: alert.createdBy}, {role: 0, password: 0, createdAt: 0, updatedAt: 0});
+                        users = await model.User.find({_id: alert.createdBy}, {role: 0, password: 0, detectedAt: 0, updatedAt: 0});
                         thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
                     }
                 }else if(document.alert === 2 || document.alert === 3){
-                    users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, createdAt: 0, updatedAt: 0});
+                    users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, detectedAt: 0, updatedAt: 0});
                 }
             }
             else{
@@ -395,7 +395,7 @@ Router.put('/update', passport.authenticate('jwt', {session: false}), async (req
 
 Router.get('/lastAlert/:station/:camera', passport.authenticate('jwt', {session: false}), (req, res) =>{
     model.Vehicle.find({station: req.params.station, camera: req.params.camera, alert: {$ne: 0}})
-        .sort({createdAt: 'desc'})
+        .sort({detectedAt: 'desc'})
         .limit(1)
         .exec((error, documents) =>{
             if(error){
@@ -414,9 +414,10 @@ Router.post('/search', passport.authenticate('jwt', {session: false}), async (re
     if(req.body.startDate && req.body.endDate){
         let start = new Date(req.body.startDate);
         let end = new Date(req.body.endDate);
-        search.push({range:{path: 'createdAt', gte: start, lte: end}});
+        search.push({range:{path: 'detectedAt', gte: start, lte: end}});
     }
-    if(req.body.color) search.push({text: {query: req.body.color, path: ['color', 'originColor']}});
+    if(req.body.color) search.push({text: {query: req.body.color, path: 'color'}});
+    if(req.body.originColor) search.push({text: {query: req.body.originColor, path: 'originColor'}});
     if(req.body.plate) search.push({wildcard:{query: req.body.plate.toUpperCase(), path: "license", allowAnalyzedField: true}});
     if(req.body.brand && req.body.model){
         search.push({
@@ -449,7 +450,7 @@ Router.post('/search', passport.authenticate('jwt', {session: false}), async (re
     else aggregate = model.Vehicle.aggregate();
 
     aggregate
-        .sort({createdAt: 'desc'})
+        .sort({detectedAt: 'desc'})
         .skip((req.body.page -1) * req.body.sizePerPage)
         .limit(req.body.sizePerPage)
         .exec((error, documents)=>{
@@ -462,6 +463,90 @@ Router.post('/search', passport.authenticate('jwt', {session: false}), async (re
 
             return res.status(200).send({success: true, vehicles: documents, total: 2});
     });
+});
+
+Router.post('/companion', passport.authenticate('jwt', {session: false}), async (req, res) =>{
+    let search = [];
+    if(req.body.startDate && req.body.endDate){
+        let start = new Date(req.body.startDate);
+        let end = new Date(req.body.endDate);
+        search.push({
+            range:{
+                path: 'detectedAt',
+                gte: start,
+                lte: end
+            }
+        });
+    }
+
+    if(req.body.plate)
+        search.push({
+            text:{
+                query: req.body.plate.toUpperCase(),
+                path: "license"
+            }
+        });
+
+    let aggregate;
+    if(search.length > 0) aggregate = model.Vehicle.aggregate().search({compound: {must: search}});
+    else aggregate = model.Vehicle.aggregate();
+
+    aggregate
+        .sort({detectedAt: 'desc'})
+        .exec(async (error, documents)=>{
+            if(error){
+                return res.status(500).send({
+                    success: false,
+                    errorMsg: "Algo deu errado"
+                });
+            }
+
+            let filtered = [];
+
+            let startTime;
+
+            for(let document of documents){
+                if(!startTime){
+                    startTime = new Date(document.detectedAt);
+                    let start =new Date(document.detectedAt);
+                    let end = new Date(document.detectedAt);
+                    start.setMinutes(start.getMinutes() - 1);
+                    end.setMinutes(end.getMinutes() + 1);
+                    let vehicles = await model.Vehicle.find({
+                        camera: document.camera,
+                        detectedAt: {$gte: start, $lte: end},
+                        license: {$ne: document.license}});
+                    Array.prototype.push.apply(filtered, vehicles);
+                }else{
+                    let differ = Math.abs(document.detectedAt - startTime);
+                    if(differ > 300000){
+                        startTime = document.detectedAt;
+                        let start =new Date(document.detectedAt);
+                        let end = new Date(document.detectedAt);
+                        start.setMinutes(start.getMinutes() - 1);
+                        end.setMinutes(end.getMinutes() + 1);
+                        let vehicles = await model.Vehicle.find({
+                            camera: document.camera,
+                            detectedAt: {$gte: start, $lte: end},
+                            license: {$ne: document.license}});
+                        Array.prototype.push.apply(filtered, vehicles);
+                    }
+                }
+            }
+
+            const lookup = filtered.reduce((a, e) => {
+                a[e.license] = ++a[e.license] || 0;
+                return a;
+            }, {});
+
+            let duplicates = filtered.filter(e => lookup[e.license]);
+
+            return res.status(200).send({
+                success: true,
+                vehicles: duplicates,
+                total: duplicates.length
+            });
+        });
 });
 
 module.exports = Router;
