@@ -472,18 +472,6 @@ Router.post('/search', passport.authenticate('jwt', {session: false}), async (re
 
 Router.post('/companion', passport.authenticate('jwt', {session: false}), async (req, res) =>{
     let search = [];
-    if(req.body.startDate && req.body.endDate){
-        let start = new Date(req.body.startDate);
-        let end = new Date(req.body.endDate);
-        search.push({
-            range:{
-                path: 'detectedAt',
-                gte: start,
-                lte: end
-            }
-        });
-    }
-
     if(req.body.plate)
         search.push({
             text:{
@@ -507,35 +495,38 @@ Router.post('/companion', passport.authenticate('jwt', {session: false}), async 
             }
 
             let filtered = [];
+            let target;
 
             let startTime;
 
             for(let document of documents){
                 if(!startTime){
-                    startTime = new Date(document.detectedAt);
-                    let start =new Date(document.detectedAt);
-                    let end = new Date(document.detectedAt);
+                    target = document;
+                    startTime = new Date(document.detectedAt || document.createdAt);
+                    let start =new Date(document.detectedAt || document.createdAt);
+                    let end = new Date(document.detectedAt || document.createdAt);
                     start.setMinutes(start.getMinutes() - 1);
                     end.setMinutes(end.getMinutes() + 1);
                     let vehicles = await model.Vehicle.find({
                         camera: document.camera,
                         detectedAt: {$gte: start, $lte: end},
                         license: {$ne: document.license}});
-                    filtered.push(document);
                     Array.prototype.push.apply(filtered, vehicles);
                 }else{
-                    let differ = Math.abs(document.detectedAt - startTime);
+                    let differ;
+                    document.detectedAt?
+                    differ = Math.abs(document.detectedAt - startTime)
+                    :differ = Math.abs(document.createdAt - startTime);
                     if(differ > 300000){
-                        startTime = document.detectedAt;
-                        let start =new Date(document.detectedAt);
-                        let end = new Date(document.detectedAt);
+                        startTime = new Date(document.detectedAt || document.createdAt);
+                        let start =new Date(document.detectedAt || document.createdAt);
+                        let end = new Date(document.detectedAt || document.createdAt);
                         start.setMinutes(start.getMinutes() - 1);
                         end.setMinutes(end.getMinutes() + 1);
                         let vehicles = await model.Vehicle.find({
                             camera: document.camera,
                             detectedAt: {$gte: start, $lte: end},
                             license: {$ne: document.license}});
-                        filtered.push(document);
                         Array.prototype.push.apply(filtered, vehicles);
                     }
                 }
@@ -551,6 +542,7 @@ Router.post('/companion', passport.authenticate('jwt', {session: false}), async 
             return res.status(200).send({
                 success: true,
                 vehicles: duplicates,
+                target: target,
                 total: duplicates.length
             });
         });
