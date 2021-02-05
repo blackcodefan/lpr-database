@@ -521,6 +521,7 @@ Router.post('/companion', passport.authenticate('jwt', {session: false}), async 
                         camera: document.camera,
                         detectedAt: {$gte: start, $lte: end},
                         license: {$ne: document.license}});
+                    filtered.push(document);
                     Array.prototype.push.apply(filtered, vehicles);
                 }else{
                     let differ = Math.abs(document.detectedAt - startTime);
@@ -534,6 +535,7 @@ Router.post('/companion', passport.authenticate('jwt', {session: false}), async 
                             camera: document.camera,
                             detectedAt: {$gte: start, $lte: end},
                             license: {$ne: document.license}});
+                        filtered.push(document);
                         Array.prototype.push.apply(filtered, vehicles);
                     }
                 }
