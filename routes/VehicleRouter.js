@@ -171,17 +171,19 @@ Router.post('/add', async (req, res) =>{
         vehicle.originColor = renavamObj.color;
     }
 
+    let station = await model.Station.findOne({id: vehicle.station});
+    let camera = await model.Camera.findOne({cameraId: vehicle.camera, station: station._id});
+    let city = await model.City.findById(camera.city);
+    vehicle.street = camera.street;
+    vehicle.city = camera.city;
+    vehicle.cityLabel = `${city.city}-${city.state}`;
+
     let alerts = await hmget('alert', vehicle.license);
     let users = [];
 
     if(alerts[0]){
         vehicle.alert = parseInt(alerts[0]);
-        let station = await model.Station.findOne({id: vehicle.station});
-        let camera = await model.Camera.findOne({cameraId: vehicle.camera, station: station._id});
-        let city = await model.City.findById(camera.city);
-        vehicle.street = camera.street;
-        vehicle.city = camera.city;
-        vehicle.cityLabel = `${city.city}-${city.state}`;
+
         if(vehicle.alert === 1 || vehicle.alert === 4){
             users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, detectedAt: 0, updatedAt: 0});
             thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
