@@ -197,8 +197,10 @@ Router.post('/add', async (req, res) =>{
     }
 
     model.Vehicle.create(vehicle.toJson(), (error, document) =>{
-        if(error)
+        if(error){
+            console.log(error);
             return res.status(500).send({success: 0});
+        }
 
         else {
             if(vehicle.alert !== 0){
