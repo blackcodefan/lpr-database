@@ -51,8 +51,15 @@ Router.put('/update', passport.authenticate('jwt', {session: false}), (req, res)
             res.status(500).send({success:false, errorMsg: "Algo deu errado"});
         }
         else{
-            if(req.body.query.type)
-                client.hmset('alert', docs.plate, req.body.query.type);
+            if(req.body.query.active !== null){
+                if(req.body.query.type)
+                    client.hmset('alert', docs.plate, req.body.query.type);
+                else
+                    client.hmset('alert', docs.plate, docs.type);
+            }else{
+                client.del('alert', docs.plate);
+            }
+
             res.status(202).send({success:true, doc: docs});
         }
     });
