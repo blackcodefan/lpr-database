@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const AlertSchema = mongoose.Schema({
     plate:{
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     type: {
         type: Number,
