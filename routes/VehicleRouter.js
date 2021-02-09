@@ -184,24 +184,25 @@ Router.post('/add', async (req, res) =>{
     if(alerts[0]){
         vehicle.alert = parseInt(alerts[0]);
 
-        if(vehicle.alert === 1 || vehicle.alert === 4){
-            users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, detectedAt: 0, updatedAt: 0});
+        let alert = await model.Alert.findOne({plate: vehicle.license, type: vehicle.alert, active: true});// Check if alert registered by users
+
+        if (alert) {// if users registered alert, send sms, whatsapp, email to him
+            let user = await model.User.findOne({_id: alert.createdBy}, {role: 0, password: 0, detectedAt: 0, updatedAt: 0});
+            users.push(user);
             thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
-        }else if(vehicle.alert === 5){
-            let alert = await model.Alert.findOne({plate: vehicle.license, type: vehicle.alert});
-            if(alert){
-                users = await model.User.find({_id: alert.createdBy}, {role: 0, password: 0, detectedAt: 0, updatedAt: 0});
-                thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
-            }
-        }else if(vehicle.alert === 2 || vehicle.alert === 3){
-            users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, detectedAt: 0, updatedAt: 0});
         }
+
+
+        let groupMembers = await model.User.find({
+            city: station.city,
+            group: {$in: groupsForAlert}},
+            {role: 0, password: 0, detectedAt: 0, updatedAt: 0});
+
+        users = [...users, ...groupMembers];
     }
 
     model.Vehicle.create(vehicle.toJson(), (error, document) =>{
         if(error){
-            console.log(error)
-            console.log(vehicle.toJson())
             return res.status(500).send({success: 0});
         }
 
@@ -333,21 +334,23 @@ Router.put('/update', passport.authenticate('jwt', {session: false}), async (req
             document.cityLabel = `${city.city}-${city.state}`;
 
             if(alerts[0]){
-                document.alert = parseInt(alerts[0]);
+                vehicle.alert = parseInt(alerts[0]);
 
-                let vehicle = new VehicleFromDocument(document);
-                if(document.alert === 1 || document.alert === 4){
-                    users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, detectedAt: 0, updatedAt: 0});
+                let alert = await model.Alert.findOne({plate: vehicle.license, type: vehicle.alert, active: true});// Check if alert registered by users
+
+                if (alert) {// if users registered alert, send sms, whatsapp, email to him
+                    let user = await model.User.findOne({_id: alert.createdBy}, {role: 0, password: 0, detectedAt: 0, updatedAt: 0});
+                    users.push(user);
                     thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
-                }else if(document.alert === 5){
-                    let alert = await model.Alert.findOne({plate: document.license, type: document.alert});
-                    if(alert){
-                        users = await model.User.find({_id: alert.createdBy}, {role: 0, password: 0, detectedAt: 0, updatedAt: 0});
-                        thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
-                    }
-                }else if(document.alert === 2 || document.alert === 3){
-                    users = await model.User.find({city: station.city, group: {$in: groupsForAlert}}, {role: 0, password: 0, detectedAt: 0, updatedAt: 0});
                 }
+
+
+                let groupMembers = await model.User.find({
+                        city: station.city,
+                        group: {$in: groupsForAlert}},
+                    {role: 0, password: 0, detectedAt: 0, updatedAt: 0});
+
+                users = [...users, ...groupMembers];
             }
             else{
                 document.alert = 0;

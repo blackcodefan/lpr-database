@@ -45,9 +45,6 @@ Router.post('/fetchAll', passport.authenticate('jwt', {session: false}), async (
 });
 
 Router.put('/update', passport.authenticate('jwt', {session: false}), (req, res) =>{
-    if(req.user.role !== 'admin'){
-        return res.status(401).send({success: false, errorMsg: "Permissão negada"});
-    }
 
     model.Alert.findByIdAndUpdate(req.body.id, req.body.query,  {useFindAndModify: false},(err, docs) => {
         if (err){
