@@ -426,6 +426,8 @@ Router.post('/search', passport.authenticate('jwt', {session: false}), async (re
     }
     if(req.body.color) search.push({text: {query: req.body.color, path: 'color'}});
     if(req.body.originColor) search.push({text: {query: req.body.originColor, path: 'originColor'}});
+    if(req.body.camera) search.push({text: {query: req.body.camera, path: 'camera'}});
+    if(req.body.city) search.push({text: {query: req.body.city, path: 'city'}});
     if(req.body.plate) search.push({wildcard:{query: req.body.plate.toUpperCase(), path: "license", allowAnalyzedField: true}});
     if(req.body.brand && req.body.model){
         search.push({
