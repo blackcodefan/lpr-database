@@ -4,7 +4,7 @@ const LogSchema = mongoose.Schema({
     action:{
         type: String,
         required: true,
-        enum: ['Login', 'Search', 'Create', 'Update', 'Delete']
+        enum: ['Login', 'Search', 'Create', 'Update', 'Delete', 'Alert']
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,

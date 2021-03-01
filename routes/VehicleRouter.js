@@ -190,6 +190,12 @@ Router.post('/add', async (req, res) =>{
             let user = await model.User.findOne({_id: alert.createdBy}, {role: 0, password: 0, detectedAt: 0, updatedAt: 0});
             users.push(user);
             thread({vehicle: vehicle.toJson(), users: JSON.stringify(users)});
+            model.Log.create({
+                action: 'Alert',
+                description: 'User logged in'
+            }).then((res) =>{
+                console.log(res)
+            })
         }
 
 
@@ -211,11 +217,16 @@ Router.post('/add', async (req, res) =>{
                 io.emit('vehicle', document);
 
                 if(users.length > 0){
-                    let notifications = [], socketTargets = [];
+                    let notifications = [], socketTargets = [], logs = [];
                     for( let user of users){
                         notifications.push({
                             user: user._id,
                             vehicle: document._id,
+                        });
+                        logs.push({
+                            action: 'Alert',
+                            description: 'Alert triggered',
+                            user: user._id
                         });
                         socketTargets.push(user._id);
                     }
@@ -228,6 +239,9 @@ Router.post('/add', async (req, res) =>{
                         }
                         io.emit('notification', {users: socketTargets, vehicles: results});
                     });
+                    model.Log.insertMany(logs, (error, document) =>{
+                        if(error) console.log(error);
+                    })
                 }
 
             }
@@ -464,6 +478,14 @@ Router.post('/search', passport.authenticate('jwt', {session: false}), async (re
         .skip((req.body.page -1) * req.body.sizePerPage)
         .limit(req.body.sizePerPage)
         .exec((error, documents)=>{
+            model.Log.create({
+                action: 'Search',
+                user: req.user._id,
+                description: 'User performed search'
+            }).then((res) =>{
+                console.log(res)
+            });
+
             if(error){
                 return res.status(500).send({
                     success: false,
